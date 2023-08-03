@@ -1,0 +1,579 @@
+---
+output: 
+  bookdown::pdf_document2:
+    toc: false
+    keep_tex: true
+fontsize: 12pt
+header-includes:
+  - \linespread{2}
+  - \usepackage{lineno}
+  - \linenumbers
+  - \usepackage{booktabs, multirow, tabularx, float}
+bibliography: references.bib
+csl: vancouver.csl
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,
+                      warning = FALSE,
+                      message = FALSE,
+                      fig.align = 'center',
+                      fig.pos = 'H')
+```
+
+# **Title:** Data-driven, matrix-wide molecular formula assignment for ultra-high resolution ESI-MS {-}
+
+**Authors:**  Jasen P. Finch^1\*^, Thomas Wilson^1^, Laura Lyons^1^, Helen Phillips^1^, Manfred Beckmann^1^ & John Draper^1^
+
+^\*^ Corresponding author
+
+**Addresses:**
+
+^1^ Department of Life Sciences, Aberystwyth University, Aberystwyth, SY23 3DA, UK
+
+# Abstract {-}
+
+## Background {-}
+
+Compound identification remains one of the primary bottlenecks in the analysis of non-targeted mass spectrometry metabolomics data.
+Some annotation approaches are available; however, these are primarily for liquid chromatography-mass spectrometry (LC-MS) profiling and are unsuitable for non-targeted metabolome fingerprinting techniques.
+
+## Results {-}
+
+```{r assignment-summary}
+tar_load(assignment_results)
+tar_load(assignment_matches)
+tar_load(spike_urine_standards_MF_assignment_possible)
+tar_load(spiked_urine_correct_assignments)
+
+total_assigned <- round(sum(assignment_results$n_assignments) / 
+                          sum(assignment_results$n_features) * 100,1)
+total_mfs <- sum(assignment_results$n_MFs)
+total_kegg <- sum(assignment_matches$KEGG_compound_matches)
+
+spiked_urine_possible <- nrow(spike_urine_standards_MF_assignment_possible)
+spiked_urine_correct_percent <- spiked_urine_correct_assignments$MF %>% 
+  unique() %>% 
+  length() %>% 
+  {. / spiked_urine_possible * 100} %>% 
+  round(digits = 1)
+```
+
+We present a data-driven ensemble approach for the ‘first pass’ automated assignment of molecular formulas to mass spectra acquired from high-resolution electrospray ionisation mass spectrometry (ESI-MS). This is primarily intended for metabolomics experiment data using non-targeted metabolome fingerprinting and LC-MS profiling.
+The approach incorporates the use of *m/z* correlation networks, molecular formula generation and selection as well as graphically based component plausibility selection to assign molecular formulas to *m/z* features.
+The R package *assignments* was developed as a user-friendly implementation of the approach and is freely available from https://github.com/aberHRML/assignments.
+The approach was tested in human urine samples spiked with known chemical standards and a data set comparing leaf tissue samples of different ecotypes of the model grass species *Brachypodium distachyon*. Across the three test matrices, `r total_assigned`% of the m/z features were assigned a molecular formula giving a total of `r total_mfs` molecular formulas and matching to `r total_kegg` compounds in the KEGG compound database. Of the `r spiked_urine_possible` spiked chemical standards that it was possible to assign in the human urine samples, the approach was able to assign m/z features to `r spiked_urine_correct_percent`% of these.
+
+## Conclusions {-}
+
+The approach presented here and its implementation in the R package *assignments* provides investigators with an efficient and automated approach for matrix-wide ‘first pass’ assignment of molecular formulas to non-targeted ESI-MS metabolomics experiment data.
+
+# Introduction
+
+Metabolite identification remains one of the main bottlenecks both in time and resources in the analysis of non-targeted mass spectrometry based metabolomics approaches.
+Electrospray ionisation mass spectrometry (ESI-MS) is preferred as this is a soft ionisation technique that enables easier compound identification [@domingo2018].
+Irrespectively, it is possible for a single metabolite to be represented within ESI-MS spectra by multiple ionisation product adducts and isotopes [@draper2013]. 
+
+Ultra-high resolution MS instrumentation utilising Orbitrap mass analyser technology is now commonplace in many laboratories, which can yield many thousands of *m/z* features in a single analytical run [@hu2005].
+This has provided an unprecedented opportunity for metabolite annotation and has been applied to approaches such as 'first pass' flow infusion electrospray high-resolution MS (FIE-HRMS) fingerprinting and liquid chromatography (LC) HRMS profiling for non-targeted metabolomic analyses.
+However, mass accuracy alone does not meet the requirements for metabolite annotation [@kind2006].
+
+Metabolite annotation is a crucial aspect for ensuring that biological interpretation is possible from metabolomics data sets.
+A number of strategies can be employed to annotate peaks in mass spectra.
+These can include simple approaches such as heuristic filtering of molecular formulas generated from *m/z* or direct matching putative ionisation products to metabolite databases [@draper2009; @green2015; @kind2007];
+but also ensemble approaches that integrate a number of strategies like correlation analysis, ionisation product scoring and biotransformations [@baran2013; @fernandez2014; @kuhl2012; @uppal2017].
+Tandem MS can also be employed for LC-MS approaches and provides a convenient method for structural validation [@neumann2010].
+However, this is unsuitable for metabolome fingerprinting-based techniques due to the presence of structural isomers and isobaric compounds.
+Many of the available software packages implementing these strategies are suitable for LC-MS techniques only.
+
+For investigators, manual consideration of putative annotations is time-consuming and often difficult to interpret due to the complex interactions between ions and molecules and their mathematical possibilities forming *m/z* features.
+It is important that software package implementations can automate this process but also provide tractable results and simple input parameters for easy and wide applicability.
+
+Correlation analysis has been commonly used to identify related metabolites within metabolomics data and is often used in LC-MS approaches to group related *m/z* features [@steuer2006;@kuhl2012]. 
+These analyses can be represented as weighted undirected network graphs where the *m/z* features reflect the graph nodes and the significant correlations between them, the graph edges [@gehlenborg2010].
+Applying Spearman's rank correlation allows the detection of both linear and monotopic associations between *m/z* features.
+Adduct and isotopic relationships would be expected to have positive linear correlations whereas compounds associated by pathway transformations within living tissues under the control of gene and protein regulation would be able to have both positive or negative monotonic correlations [@camacho2005].
+
+The use of correlations to associate relationships between *m/z* features provides an essential layer of data-driven, internal validation of the mathematically derived solutions.
+For instance, if two features that are posited to have the same composition (eg. a C^13^ relationship) but are not significantly correlated within the matrix, it would then be illogical to infer biological assumptions about associations (eg. metabolic pathway changes) of those features with other putatively assigned features within the matrix.
+
+Here, we outline the development of a data-driven, automated approach for 'first pass' putative molecular formula assignment in non-targeted ESI-MS fingerprinting and LC-MS profiling-based metabolomics data. 
+This is aimed at biological experiments that include numerous replicates of sample classes for the assignment of low accurate mass (< 1000 atomic mass units (amu)) metabolite elemental compositions of biological origin.
+It is an ensemble approach that combines a number of annotation strategies including correlation analysis, molecular formula selection, adduct and isotopic scoring and graphical component selection.
+This is accompanied by the development of the R package *assignments* as an implementation of the approach.
+
+# Materials and methods
+
+## Biological sample preparation and ESI-MS analysis
+
+```{r chemical-standards}
+tar_load(spiked_urine_compound_info)
+
+spiked_urine_compound_MFs <- spiked_urine_compound_info %>% 
+  select(MF) %>% 
+  distinct() %>% 
+  nrow()
+```
+
+Two example sample matrices were used for assessing the molecular formula assignment approach. 
+The first was human urine spiked with a diverse mixture of `r nrow(spiked_urine_compound_info)` chemical standards from a previously validated assay that included `r spiked_urine_compound_MFs` unique molecular formulas [@beckmann2020].
+A full list of the names and InChI chemical identifiers of the spiked chemical standards can be found in Additional file 1.
+The second was healthy leaf tissue samples collected from four ecotypes of the model grass species *Brachypodium distachyon* using the method described in @parker2008.
+Further details of the sample collection and extraction are described in the Additional file 2.
+
+The sample matrices were each analysed using FIE-HRMS fingerprinting and C18 reverse phase ultra-high performance liquid chromatography high-resolution mass spectrometry (C18-UHPLC-HRMS) profiling.
+These data are available via the EMBL-EBI Metabolights database with the study identifier MTBLS6949.
+The FIE-HRMS fingerprinting data were spectrally processed by performing spectral binning using the R package *binneR* v`r packageVersion('binneR')` [@finch2022].
+Spectral processing of the C18-UHPLC-HRMS profiling data was conducted using the R package *xcms* v`r packageVersion('xcms')` [@smith2006].
+The data were then pre-treated by performing batch correction, feature occupancy filtering, imputation, relative standard deviation filtering based on QC samples and total ion count normalisation using the R package *metabolyseR* v`r packageVersion('metabolyseR')` available from GitHub (https://github.com/jasenfinch/metabolyseR).
+Further details of the ESI-MS analyses and data preparation are available in Additional file 2.
+All data processing and analysis were performed using the R Statistical Programming Language version `r stringr::str_c(version$major,version$minor,sep ='.')` [@Rteam2022].
+
+## Molecular formula assignment
+
+For each biological sample matrix, the input data for molecular formula assignment had undergone spectral processing and pre-treatment and consisted of a sample by *m/z* feature intensity matrix containing both positive and negative ionisation mode data. 
+Molecular formula assignment was conducted using the R package *assignments* v`r packageVersion('assignments')` and the approach comprised four major steps which are outlined in Figure \@ref(fig:figure-1-approach).
+Where assignment was possible, *m/z* features were designated with unambiguous molecular formulas, isotopes and ionisation adduct assignments. 
+The following sections outline the methodology behind each major step of the approach.
+
+\linespread{1}
+
+```{r figure-1-approach,fig.height=6,fig.cap='An overview of the approach for assigning molecular formulas to \\textit{m/z} features from ultra-high resolution ESI-MS metabolomics experiments.'}
+tar_read(approach)
+```
+
+\linespread{2}
+
+### Correlation analysis
+
+Spearman's rank correlation was conducted between all pairwise combinations of *m/z* features.
+A Bonferroni correction was applied to the p-value of each coefficient based on the total number of features.
+Correlations with a p-value below 0.05 and a minimum absolute coefficient of 0.7 were retained. 
+
+### Relationship calculation {#relationships}
+
+```{r adducts}
+tar_load(brachy_FIE_HRMS_parameters_molecular_formula_assignment)
+
+negative_mode_adducts <-  brachy_FIE_HRMS_parameters_molecular_formula_assignment %>% 
+  assignments::adducts() %>% 
+  .$n %>% 
+  stringr::str_replace_all(']1-',']^1-^') %>% 
+  stringr::str_replace_all(']2-',']^2-^') %>% 
+  stringr::str_replace_all('Cl37','^37^Cl') %>% 
+  str_as_written_list()
+positive_mode_adducts <-   brachy_FIE_HRMS_parameters_molecular_formula_assignment %>% 
+  assignments::adducts() %>% 
+  .$p %>% 
+  stringr::str_replace_all(stringr::coll(']1+'),']^1+^') %>% 
+  stringr::str_replace_all(stringr::coll(']2+'),']^2+^') %>% 
+  stringr::str_replace_all('K41','^41^K') %>% 
+  str_as_written_list()
+```
+
+Possible adduct, isotopic and transformation mass relationships were calculated for each pair of correlated *m/z*.
+The pre-ionisation masses ($M$) were first calculated for all adduct, isotopic and transformation combinations for each of the *m/z*. 
+An $M$ for a given ionisation product *m/z*, adduct, isotope and transformation was calculated using the following equation:
+
+$$M = \frac{c(m/z - \Delta m_a) - \Delta m_i}{n} - \Delta m_t$$
+
+Where $c$ is the overall ionisation product charge, $\Delta m_a$ is the adduct mass change, $\Delta m_i$ is the isotopic mass change, $n$ is the number of molecules involved in the ionisation product and $\Delta m_t$ is the transformation mass change. 
+
+The negative ionisation mode adducts included: `r negative_mode_adducts`.
+The positive ionisation mode adducts included: `r positive_mode_adducts`.
+All adduct mass, charge and molecule information can be found in Additional file 3 (Table S2).
+The isotopes included single and double ^13^C and ^18^O for the *B.distachyon* matrices and additionally ^34^S for the spiked urine.
+The isotopic mass information used can be found in Additional file 3 (Table S3).
+For all matrices, `r nrow(mzAnnotation::transformation_rules)` transformations were based on the transitions of common metabolic reactions found in primary metabolism.
+These transformations can be found in Additional file 3 (Table S4).
+
+To calculate the mass error for possible relationships between the *m/z* in the correlated pair, the mass differences between all the possible $M$ values of the *m/z* were computed.
+All relationships with an $M$ difference in mass error below 0.001 amu and a maximum of one transformation were retained.
+
+### Adduct and isotopic assignment iterations
+
+This first assignment step used only positively correlated feature relationships that corresponded to adduct and isotopic relationships without transformation. 
+This assignment step consisted of molecular formula generation, molecular formula selection (Section \@ref(MF-selection)) and then multiple iterations of network graph component assembly and network graph component selection (Section \@ref(component-selection)).
+
+### Molecular formula generation and selection {#MF-selection}
+
+For all the relevant *m/z* relationships, molecular formulas were generated from all the possible $M$ values based on these relationships.
+To reduce the computational requirements for molecular formula generation with increasing molecular mass, the possible $M$ values were limited to a maximum of 800 amu.
+
+Generated molecular formulas were restricted to only include the elements C, H, N, O, P and S.
+For a given $M$, the maximum allowed element frequencies for generated molecular formulas were restricted using the following terms: $C = M/12$, $H = 2C$, $N,O = C/2$, $P,S = C/4$.
+The calculated frequencies were rounded to the nearest integer value.
+Molecular formula generation was conducted for each $M$ value within a mass deviation range of $\pm$ 6 ppm.
+This generation was exhaustive, using the brute force approach of the HR2 generator, without the application of the golden rules proposed by @kind2007.
+
+To allow the most plausible molecular formulas to be selected, a percentage plausibility score was calculated based on 12 heuristic checks of the rules 2, 4, 5 and 6 from @kind2007.
+These included the LEWIS and SENIOR checks, five element ratio checks and five element probability checks.
+For each molecular formula, a point was awarded for each check that passed or was not applicable.
+These points were then totalled and divided by 12 to give a golden rules check score ($S_{GR}$).
+The proportion of the atoms in the molecule that were C, H or O was then calculated to give a CHO proportion score ($S_{CHO}$).
+A percentage plausibility score ($P_{MF}$) was then calculated for the molecular formula using the equation below.
+
+$$P_{MF} = \frac{S_{GR} + S_{CHO}}{2} \times 100  $$
+The three top-ranked molecular formulas with the highest $P_{MF}$ scores, generated for a given $M$, were selected for network component assembly. 
+
+### Graphical component selection {#component-selection}
+
+For each selected molecular formula, a component subgraph was constructed from the correlation network graph using all matching features, with features allowed across multiple components.
+All components with a size of less than one and containing only isotopic features or adducts were removed.
+
+The components were ranked from most plausible to least plausible using a component plausibility score $P_c$. 
+This was based on the component size, the average component edge weight and an additional score based on the plausibility of the adduct and isotopic combinations of the features within the component (AIS).
+
+To calculate $AIS$, the possible adducts within each ionisation mode were ranked from most probable to least probable and assigned a score ($a$) with the most probable being $n-1$, $n$ being the number of adducts within that ionisation mode and least probable adduct a score of 0. 
+The adduct rank scores used for the assignment were based on the adduct order specified in Section \@ref(relationships) for all matrices.
+
+Similarly, for the possible isotopes, these were also ranked from most (non-isotopic) to least probable and assigned a score ($i$) as for the adducts.
+The isotopic rank scores used for the assignment of the *B.distachyon* matrices were as follows: Non-isotopic = 3, ^13^C = 2, ^18^O = 1, ^13^C2 = 0.
+For the spiked urine matrices, the isotopic rank scores were: Non-isotopic = 4, ^13^C = 3, ^18^O = 2, ^34^S = 1, ^13^C2 = 0.
+
+The $AIS$ for a given adduct and isotopic combination ($k$) was then calculated using:
+
+$$AIS_k = \frac{a_k + i_k}{\max{a} + \max{i}}$$
+
+The $AIS$ scores within each component were totalled and divided by half the total number of adduct and isotope combinations to give a component $AIS$ score ($AIS_c$).
+
+For each component, the component plausibility score $P_c$ was calculated using:
+
+$$P_c = d \times AIS_c \times w$$
+Where $d$ is the component degree and $w$ is the average component edge weight. 
+The higher $P_c$, the more plausible the component subgraph.
+
+Features shared between multiple components were sequentially eliminated and retained for only the components with the highest $P_c$.
+For any ties in $P_c$ between components, the component with the highest $P_{MF}$ was selected.
+Further ties were decided by selecting the component with the lowest ppm error.
+This graphical component selection routine was repeatedly performed across multiple iterations until no more assignments were obtained.
+
+### Transformation assignment iterations
+
+The transformation assignment iterations consisted of multiple assignment iterations where only positively or negatively correlated relationships containing a previously assigned feature and a transformation were included.
+Each iteration was performed as for the previous adduct and isotopic assignment iteration and repeated until no more assignments were obtained.
+
+## Assignment assessments 
+
+```{r KEGG-compounds}
+tar_load(KEGG_compounds_valid_MFs)
+```
+
+Features matching to possible ionisation products of the spiked urine compounds were identified by first applying the MZedDB ionisation 'rules' and calculating their theoretical *m/z* for each of the adducts specified in Section \@ref(relationships) [@draper2009].
+The calculated *m/z* were then matched to the spiked urine features using a search range of $\pm$ `r spiked_urine_search_ppm` ppm.
+
+The molecular formulas and monoisotopic masses for compound entries in the KEGG compound database were accessed using the R package *KEGGREST* v`r packageVersion('KEGGREST')` [@kanehisa2000;@tenenbaum2021].
+For the assessments of molecular formula selection success, only uncharged molecular formulas containing the elements C, H, N, O, P, or S and a monoisotopic mass below 1000 amu were retained.
+This gave a total of `r nrow(KEGG_compounds_valid_MFs)` unique molecular formulas.
+
+For the assignments in *B.distachyon* and human urine matrices, KEGG compounds specific to each organism were identified by cross-referencing KEGG compound IDs with the KEGG enzyme database for *B. distachyon*.
+For these compounds, InChI chemical identifiers were obtained by cross-referencing their entries in the PubChem Substance database with the PubChem Compound database [@kim2016].
+To match possible KEGG compounds specific to each organism to the molecular formulas assigned to *m/z* features, the organism-specific compound molecular formulas were first filtered to compounds only with molecular formulas that were assigned to *m/z* features.
+By applying the MZedDB ionisation rules, only KEGG compounds were retained for which the adducts of the assigned features were possible. 
+
+# Results and discussion
+
+## *assignments*: An R package for molecular formula assignment of ESI-MS metabolomics data
+
+The R package *assignments* was developed as an implementation of this molecular formula assignment approach.
+It is available to install from GitHub at https://aberhrml.github.io/assignments/.
+The package is fully documented and a usage guide is provided for new users.
+
+The input data consists of a sample by accurate *m/z* feature intensity matrix with at least four samples.
+This data should be spectrally processed and appropriately pre-treated prior to assignment.
+All assignment parameters are fully customisable, which includes the specification of custom adducts, isotopes and transformations.
+It is possible for all the assignment criteria and results to be recovered for each assignment step, enabling the manual curation of assignments by the user.
+The default parameters provided by the package have been designated to enable assignment for a wide range of biological applications.
+
+Parallel processing is provided by the *future* R package, which allows the user to specify a number of different parallel backends [@bengtsson2021].
+Benchmarking of the processing time of assignments made to the spiked urine sample matrix was performed by the *assignments* R package using varying numbers of CPU workers (Additional file 2).
+With the use of high-performance computing resources with greater than 32 CPU workers resulted in assignments being obtained in under two hours for 250,000 correlations between *m/z* features (Additional file 3 (Table S5)).
+
+## Molecular formula assignment success {#success}
+
+```{r assignment-success}
+tar_load(spiked_urine_compound_PIPs)
+tar_load(spiked_urine_feature_matches)
+tar_load(spiked_urine_unassigned)
+tar_load(spiked_urine_assigned)
+tar_load(spiked_urine_incorrect_assignments)
+
+brachy_shared_MFs <- tar_read(brachy_FIE_HRMS_results_molecular_formula_assignment) %>% 
+  assignments::assignments() %>% 
+  select(MF) %>% 
+  inner_join(tar_read(brachy_RP_UHPLC_HRMS_results_molecular_formula_assignment) %>% 
+               assignments::assignments() %>% 
+               select(MF),
+             by = 'MF') %>% 
+  distinct() %>% 
+  nrow()
+
+brachy_shared_kegg <- intersect(
+  tar_read(brachy_FIE_HRMS_KEGG_matches)$MF %>% 
+    unique(),
+  tar_read(brachy_RP_UHPLC_HRMS_KEGG_matches)$MF %>% 
+    unique()
+) %>% length()
+
+positive_mode_adducts <- brachy_FIE_HRMS_parameters_molecular_formula_assignment %>% 
+ assignments::adducts() %>% 
+  .$p %>% 
+  length()
+
+negative_mode_adducts <- brachy_FIE_HRMS_parameters_molecular_formula_assignment %>% 
+ assignments::adducts() %>% 
+  .$n %>% 
+  length()
+  
+spiked_urine_MF_PIPs <- spiked_urine_compound_PIPs %>% 
+  select(MF,Adduct,Isotope) %>% 
+  distinct()
+
+spiked_urine_feature_matches_MF_n <- spiked_urine_feature_matches$MF %>% 
+  unique() %>% length()
+
+percent_unassigned <- {nrow(spiked_urine_unassigned) / 
+    nrow(spiked_urine_feature_matches) * 100} %>% 
+  signif(digits = 3)
+
+spiked_urine_unassigned_MF_n <- spiked_urine_unassigned %>% 
+  anti_join(
+    spiked_urine_assigned %>% 
+      select(MF) %>% 
+      distinct(), 
+    by = 'MF') %>% 
+  .$MF %>% 
+  unique() %>% 
+  length()
+
+spiked_urine_correct_assignments_MF_n <- spiked_urine_correct_assignments %>%
+  .$MF %>% 
+  unique() %>% 
+  length()
+
+spike_urine_standards_MF_assignment_impossible_n <- spiked_urine_feature_matches_MF_n -
+  nrow(spike_urine_standards_MF_assignment_possible)
+
+percent_standards_MF_assigned <- {spiked_urine_correct_assignments_MF_n / 
+  nrow(spike_urine_standards_MF_assignment_possible) * 100} %>% 
+  signif(digits = 3)
+```
+
+An overview of the molecular formula assignments made in both the urine and *B. distachyon* FIE-HRMS matrices is provided in Table \@ref(tab:assignment-results), which shows that similar proportions of *m/z* features were assigned molecular formulas.
+However, there was more than double the relative molecular formula assignment coverage for the C18-UHPLC-HRMS data of *B. distachyon* compared to the FIE-HRMS matrices.
+The chromatographic separation of the C18-UHPLC-HRMS increases the likelihood that a number of correlated ionisation products will be present for a given compound due to a reduction in the effects of ion suppression [@gowda2014].
+There is also a decreased chance of interference in the correlations between related features due to the presence of structural isomers and isobaric compounds.
+A total of `r brachy_shared_MFs` molecular formulas were assigned in both the FIE-HRMS and C18-UHPLC-HRMS data of *B. distachyon*.
+
+\linespread{1}
+
+```{r assignment-results}
+tar_read(assignment_results) %>%
+  left_join(tar_read(assignment_matches), 
+            by = c("matrix", "technique")) %>% 
+  mutate(matrix = paste(matrix,technique)#,
+  ) %>%
+  mutate(n_assignments = glue::glue(
+    '{n_assignments} ({signif(n_assignments/n_features * 100,digits = 3)}\\%)'),
+    across(where(is.numeric),~prettyNum(.x,big.mark = ','))) %>%
+  select(-technique) %>% 
+  dplyr::rename(`\\textit{m/z} features` = n_features,
+                correlations = n_correlations,
+                relationships = n_relationships,
+                `assigned features` = n_assignments,
+                `molecular formulas (MF)` = n_MFs,
+                `KEGG compound matches` = KEGG_compound_matches,
+                `KEGG MF matches` = KEGG_MF_matches,
+                `matched chemical standards` = matched_standards) %>% 
+  tidyr::gather(Variable,Value,-matrix) %>% 
+  mutate(Value = replace(Value,
+                         Value == 'NA',
+                       'N/A')) %>% 
+  tidyr::spread(matrix,Value) %>% 
+  slice(c(1,3,8,2,7,5,4,6)) %>%
+  set_colnames(stringr::str_split_fixed(colnames(.),
+                                        ' ',2)[,2]) %>% 
+  knitr::kable(format = 'latex',
+               booktabs = TRUE,
+               linesep = '',
+               escape = FALSE,
+               align = c(
+                 rep('l',1),
+                 rep('r',3)
+               ),
+               caption = 'A summary of the molecular formula assignment results for the example sample matrices. The number of matched chemical standards is given as the number of unique molecular formulas.') %>% 
+  kable_styling(latex_options = "HOLD_position") %>% 
+  add_header_above(c(
+    " ", 
+    "\\\\textit{B. distachyon} leaf" = 2, 
+    "Human urine" = 1),
+    escape = FALSE)
+```
+
+\linespread{2}
+
+Although there were proportionately more molecular formulas assigned to *m/z* features in the C18-UHPLC-HRMS compared to the FIE-HRMS *B. distachyon* matrix, there was a disproportionate number of these molecular formulas that matched to compounds in the KEGG database specific to *B. distachyon* and able to form the relevant ionisation products (Table \@ref(tab:assignment-results)).
+However, only `r brachy_shared_kegg` of the molecular formulas matched to compounds in the KEGG database were found to be common between the two techniques.
+The low number of assigned molecular formulas partly reflects the incompleteness of the KEGG database, especially with respect to the secondary metabolites that are prolific in C18-UHPLC-HRMS [@breitling2013].
+The assignments for all the matrices along with the matched KEGG compound IDs are provided in Additional file 4.
+
+To assess the assignments in the example urine matrix with respect to the spiked chemical standards, the predicted ionisation products were first identified by directly matching these to the observed *m/z*.
+Based on the `r positive_mode_adducts + negative_mode_adducts` adducts and four isotopic rules specified, there were `r nrow(spiked_urine_MF_PIPs)` predicted ionisation product *m/z* for these chemical standards.
+A total of `r nrow(spiked_urine_feature_matches)` of these ionisation products could be directly matched to the observed *m/z* features which included `r spiked_urine_feature_matches_MF_n` of the `r spiked_urine_compound_MFs` unique molecular formulas of the spiked chemical standards. 
+These directly matched *m/z* features are provided in Additional file 5.
+For `r nrow(spiked_urine_unassigned)` (`r percent_unassigned`%) of these matched *m/z* features, no molecular formula was assigned by the approach, which included `r spiked_urine_unassigned_MF_n` of the molecular formulas of the spiked chemical standards.
+However, `r nrow(spiked_urine_assigned)` of the matched features were assigned a molecular formula with `r nrow(spiked_urine_correct_assignments)` of these corresponding to one of the spiked compound ionisation products. This included `r spiked_urine_correct_assignments_MF_n` of the spiked chemical standards molecular formulas (Table \@ref(tab:assignment-results)).
+The *m/z* features assigned to molecular formulas corresponding to the spiked chemical standards are provided in Additional file 6. 
+
+The remaining `r nrow(spiked_urine_incorrect_assignments)` matched *m/z* features were assigned alternative molecular formula ionisation products.
+The *m/z* of the predicted ionisation features that it was not possible to assign molecular formulas were as a result of either not being correlated with other *m/z* features that corresponded to a correct adduct or isotope mass difference or whose subgraph components were not selected, with more plausible solutions instead selected based on the correlation network. 
+
+Accounting for the `r spike_urine_standards_MF_assignment_impossible_n` chemical standards that were not assigned due to a lack of relevant correlated mass relationships, the algorithm was able to assign molecular formulas to features corresponding to `r percent_standards_MF_assigned`% of the `r nrow(spike_urine_standards_MF_assignment_possible)` possible chemical standards.
+This highlights the difficulty in annotating these complex biological mixtures containing hundreds of compounds, which can create many thousands of possible ionisation products.
+Interference in correlations due to the presence of isobaric compounds and MS instrument noise can weaken correlations between features, particularly in those with low abundance.
+
+## The molecular formula assignment approach
+```{r sample-size}
+sample_size_n_features <- 4000
+sample_size <- pwr::pwr.r.test(
+  r = 0.7,
+  power = 0.8,
+  sig.level = 0.05/sample_size_n_features)$n %>% 
+  round()
+```
+
+```{r mf-selection}
+tar_load(KEGG_compound_MF_ranks)
+
+kegg_top_rank_percent <- KEGG_compound_MF_ranks %>% 
+  mutate(top_10 = Rank <= 10) %>% 
+  group_by(top_10) %>% 
+  summarise(N = n()) %>% 
+  mutate(percent = N / sum(N) * 100) %>% 
+  {.$percent[.$top_10 == TRUE]} %>% 
+  signif(digits = 3)
+```
+
+The use of correlation analysis to identify related features requires a suitable number of observations to ensure that statistically significant associations can be detected. 
+This is especially important in non-targeted metabolomics data sets that can contain thousands of *m/z* features and p-value adjustment is required to account for multiple testing. 
+For example, to detect a significant lower limit of Pearson's correlation coefficient of 0.7 for a matrix containing `r sample_size_n_features` *m/z* features, an approximate minimum sample size of `r sample_size` observations would be required (p < 0.05, Bonferroni corrected) [@cohen2013]. 
+Metabolomics fingerprinting and profiling experiments typically require high replication of 10-15 observations per class in order to discriminate between the sample classes [@enot2008]. 
+Therefore, a sample set comparing just four classes brings this to within a practical range for applying this approach in many cases, such as the example *B. distachyon* ecotype comparison sample set provided here.
+The assignments obtained from the *B. distachyon* example matrix also show the application of the assignment approach to sample sets that contain multiple underlying experimental classes.
+
+The approaches of the *MFAssignR* R package and *Formularity* software provide alternative means of assigning molecular formulas to both fingerprinting and LC-MS data, with *Formularity* utilising a compound identification database to aid molecular formula selection [@schum2020;@tolic2017].
+While these approaches provide the advantage of being able to assign molecular formulas using a single replicate with substantially low computational demands, they do not incorporate the use of correlations between *m/z* features.
+This can lead to incorrect assignments and the potential miss assignment of isotopic formulae to uncorrelated features.
+Both the *CAMERA* and *MAIT* R packages utilise correlations for adduct and isotope annotation but only for LC-MS data [@fernandez2014;@kuhl2012].
+The MAIT package also includes the addition of biotransformations to improve peak annotation performance.
+
+Assignment approaches using molecular formula selection strategies have been modifications of the seven golden rules proposed by @kind2007 to identify criteria for chemically correct formulae.
+These include the assignment approach of the R package *MFAssignR* and formula filtering for PubChem database matching [@lommen2014; @schum2020].
+These approaches apply the heuristic rules discretely where molecular formulas are removed if they do not meet the criteria.
+The scoring approach used here for selection builds on this use of discrete rules by enabling generated molecular formulas to be ranked in terms of their plausibility. It also allows the inclusion of non-carbon containing molecules such as phosphate and sulphate that are common in biological systems.
+The effectiveness of this ranking is reflected in the fact that, of the `r nrow(KEGG_compound_MF_ranks)` valid KEGG compound molecular formulas, `r kegg_top_rank_percent`% of these formulas could be ranked within the top 10 for plausibility when molecular formulas were generated for the compound accurate masses inside a range of `r KEGG_alternative_MFs_ppm` ppm.
+This is also shown in Figure \@ref(fig:figure-2-kegg-mf-selection) where the plausibility ranking is still effective even for masses above 500 amu where it is possible for many thousands of formulas to be generated.
+
+\linespread{1}
+
+```{r figure-2-kegg-mf-selection,fig.height=4,fig.cap='Molecular formula plausibility ($P_{MF}$) rankings of KEGG compound molecular formulas. The $P_{MF}$ rankings were based on the monoisotopic masses of 6745 valid KEGG compound molecular formulas for which molecular formulas were generated using a mass error of $\\pm$ 6 ppm.'}
+tar_read(KEGG_compound_MF_ranks_mass_plot) +
+  tar_read(KEGG_compound_MF_ranks_n_plot)
+```
+
+\linespread{2}
+
+As shown in Figure \@ref(fig:figure-3-feature-solutions), there can be multiple graphical molecular formula component solutions can exist for a given *m/z* feature.
+The component plausibility score was the primary criterion for which components were selected. 
+This score combines information about how connected the features are within a given component, the average strength of these connections and the expected commonality of the adduct and isotopic combinations present.
+By using this information about the connections of *m/z* within the spectrum, it is possible for an *m/z* to be assigned a less plausible molecular formula if it is more highly connected with strong connections containing more common adduct and isotopic combinations.
+Combining information between the ionisation modes further increases available information and more informative components [@kuhl2012].
+
+\linespread{1}
+
+```{r figure-3-feature-solutions,fig.height=5,fig.width=8,fig.cap = 'Graphical component solutions for the spiked urine negative mode feature 80.97488 \\textit{m/z}. The components were generated during the first adduct and isotopic assignment iteration. The selected graphical component is bordered in red. The values of attributes are shown below each component. The nodes for the negative mode feature 80.97488 \\textit{m/z} are highlighted in blue.',dev='png',dpi=300}
+tar_read(spiked_urine_feature_solutions_plot)
+```
+
+\linespread{2}
+
+Adduct formation will vary depending on the sample origin and the frequency of isotopes will be dependent on the elemental compositions of the constituent compounds [@kruve2017].
+The input rankings of the adducts and isotopes ranks used will alter the preference of selected components so gains can possibly be made in assignment accuracy with the optimisation of these rankings on a per sample type basis.
+
+Although examples used here include FIE-HRMS fingerprinting and C18-UHPLC-HRMS profiling techniques, other non-targeted metabolomics techniques using non-targeted ultra-high resolution mass accuracy ESI-MS data such as nanospray direct infusion would also be suitable [@southam2017].
+Similarly, data from other chromatographic techniques for LC-HRMS profiling could be used such as hydrophilic interaction chromatography (HILIC), where suitable adducts and adduct rankings could instead be specified [@spagou2010].
+
+This approach was designed for use with any sample tissues and fluids of biological origin and analysed using non-targeted ultra-high resolution mass accuracy ESI-MS data.
+The additional input of knowledge for transformations specific to the biological sample can increase assignment success.
+However, the approach could be applied without the use of transformations where these are not relevant.
+The assigned molecular formulas could be putatively matched to compound databases such as KEGG using ionisation rules such as those of the MZedDB database and then apply functional enrichment analyses using a tool such as the R package *FELLA* [@draper2009;@picart2018].
+They could also be used to provide some information about precursor ions in LC-MS/MS fragmentation analyses.
+
+# Conclusions
+
+The approach presented here, and its implementation in the *assignments* R package, provides investigators with an automated means to assign molecular formulas to non-targeted ESI-MS metabolomics with the use of high-performance computing resources.
+
+Using correlation networks of *m/z* feature abundances, molecular formula selection and graphical component selection, assigned molecular formulas for predicted ionisation products could be recovered from a subset of chemical standards spiked into an example human urine sample analysed using FIE-HRMS metabolome fingerprinting.
+It was also possible to assign molecular formulas of common primary and secondary metabolites present in the KEGG compound database to *m/z* features from leaf tissue of *B. distachyon* using both FIE-HRMS fingerprinting and C18-UHPLC-HRMS profiling techniques.
+
+This approach can contribute to considerably reducing the workload of 'first pass' putative metabolite identification in non-targeted metabolomics analyses.
+Assignments can be used as inputs for enrichment analyses, providing a fast route to the biological interpretation of inherently complex data sets.
+
+# Declarations
+
+## Ethics approval and consent to participate
+
+Not applicable
+
+## Consent for publication
+
+Not applicable
+
+## Availability of data and materials
+
+The metabolomics data files reported in this paper are available via the EMBL-EBI Metabolights database with the study identifier MTBLS6949 (https://www.ebi.ac.uk/metabolights/MTBLS6949). 
+The R code use to analyse the data and generate the manuscript is available on GitHub at https://github.com/jasenfinch/Data_driven_matrix-wide_molecular_formula_assignment_for_high_resolution_ESI-MS.
+
+## Competing interests
+
+The authors declare that they have no competing interests.
+
+## Funding
+
+JF received funding from the charity Woodland Heritage. JF and LL were funded by The Biotechnology and Biological Science Research Council (BBSRC), Natural Environmental Research Council (NERC), Defra and Scottish Government for funding as part of the BAC-STOP and FUTURE OAK projects (grant refs:BB/T010886/1 , BB/T01069X/1).  The financial support of HP was provided by Aberystwyth University and the UK Medical Research Council (MRC) funded TW and MB (MRC grant ref: MR/S010483/1).
+
+## Authors' contributions
+
+JF: conceptualisation, methodology, sample preparation, software development, data analysis and writing-original draft; TW: conceptualisation and manuscript revision; LL: sample preparation and data collection; HP: data collection; MB: conceptualisation, supervision and manuscript revision; JD: supervision and manuscript revision.
+
+## Acknowlegements
+
+Not applicable
+
+```{r word-count}
+# jfmisc::writingChecks('manuscript/manuscript.Rmd',
+#                       checks = 'word count')
+```
+
+# Additional files
+
+Additional file 1.csv - Table S1 -
+Chemical identifiers of the compounds spiked into the urine extract.
+
+Additional file 2.pdf - Supplementary materials and methods -
+Further details outlining the materials and methods used in this article. 
+
+Additional file 3.pdf - Supplementary tables -
+Supplementary tables S2, S3, S4 and S5 showing adduct, isotopic, transformation and R package benchmarking information respectively.
+
+Additional file 4.csv - Table S6 -
+The molecular formula assignments for *m/z* across all experimental matrices along with any match KEGG compound IDs.
+
+Additional file 5.csv Table S7 -
+The *m/z* features directly matched to predicted ionisation products of the spiked chemical compounds in urine.
+
+Additional file 6.csv Table S8 -
+The *m/z* features assigned to spiked chemical compounds in urine.
+
+# References
+

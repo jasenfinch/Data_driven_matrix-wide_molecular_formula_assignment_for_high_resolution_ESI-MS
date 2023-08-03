@@ -1,0 +1,99 @@
+---
+output: pdf_document
+header-includes:
+  - \usepackage{booktabs}
+  - \usepackage{longtable}
+  - \usepackage{array}
+  - \usepackage{multirow}
+  - \usepackage{wrapfig}
+  - \usepackage{float}
+  - \usepackage{colortbl}
+  - \usepackage{pdflscape}
+  - \usepackage{tabu}
+  - \usepackage{threeparttable}
+  - \usepackage{threeparttablex}
+  - \usepackage[normalem]{ulem}
+  - \usepackage{makecell}
+  - \usepackage{xcolor}
+  - \newcommand{\beginsupplement}{\setcounter{table}{1}  \renewcommand{\thetable}{S\arabic{table}}}
+---
+
+```{r setup,include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,
+                      message = FALSE)
+```
+
+\beginsupplement
+
+```{r table-s2}
+tar_load(brachy_FIE_HRMS_parameters_molecular_formula_assignment)
+
+adducts <-  brachy_FIE_HRMS_parameters_molecular_formula_assignment %>% 
+  assignments::adducts() %>% 
+  purrr::flatten_chr()
+
+mzAnnotation::adduct_rules() %>% 
+  dplyr::filter(Name %in% adducts) %>% 
+  dplyr::select(
+    Adduct = Name,
+    Charge,
+    `No. molecules` = xM,
+    `Mass difference` = Add
+  ) %>% 
+  mutate(`Mass difference` = round(`Mass difference`,5)) %>% 
+  knitr::kable(caption = 'Information for positive and negative mode adducts used for calculating ionisation products.',
+               format = 'latex',
+               booktabs = TRUE)
+```
+
+```{r table-s3}
+mzAnnotation::isotope_rules() %>% 
+  dplyr::filter(Isotope %in% c('13C','13C2','18O','34S')) %>% 
+  dplyr::select(Isotope,
+                `Mass difference` = `Mass Difference`) %>%
+  dplyr::mutate(Isotope = c('\\textsuperscript{13}C',
+                            '\\textsuperscript{13}C2',
+                            '\\textsuperscript{18}O',
+                            '\\textsuperscript{34}S')) %>% 
+  knitr::kable(caption = 'Isotopic mass difference information.',
+               format = 'latex',
+               escape = FALSE,
+               booktabs = TRUE)
+```
+
+```{r table-s4}
+transformations <- brachy_FIE_HRMS_parameters_molecular_formula_assignment %>% 
+  assignments::transformations()
+
+mzAnnotation::transformation_rules() %>% 
+  dplyr::filter(`MF Change` %in% transformations) %>% 
+  dplyr::select(
+    Transformation = Name,
+    `MF change` = `MF Change`,
+    `Mass difference` = `Difference`
+  ) %>% 
+  knitr::kable(caption = 'Transformation mass difference information.',
+               format = 'latex',
+               booktabs = TRUE)
+```
+
+```{r table-s5}
+tar_read(processing_time_results) %>% 
+  dplyr::select(workers,
+                `Number of correlations` = `# correlations`,`time (seconds)`) %>% 
+  dplyr::mutate(`time (minutes)` = `time (seconds)` / 60,
+                dplyr::across(tidyselect::where(is.numeric),~signif(.x,digits = 3)),
+                `Number of correlations` = scales::comma(
+                  `Number of correlations`,
+                )) %>% 
+  dplyr::select(-`time (seconds)`) %>% 
+  tidyr::spread(workers,`time (minutes)`) %>% 
+  knitr::kable(
+    format = 'latex',
+    booktabs = TRUE,
+    caption = 'Processing time (minutes) results for the R package \\textit{assignments}. Feature \\textit{m/z} were used from spiked urine matrix and the numbers of correlations limited by using the correlations with the highest absolute coefficients up to the designated number. Molecular formula assignment was then performed across the range of numbers of central processing unit (CPU) workers.',
+    align = rep('r',4)
+  ) %>% 
+  kableExtra::kable_styling() %>% 
+  add_header_above(c(" ", "CPU workers" = 3))
+```

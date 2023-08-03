@@ -1,0 +1,123 @@
+---
+output: pdf_document
+bibliography: references.bib
+---
+
+```{r setup,include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,
+                      message = FALSE)
+```
+
+# Supplementary materials and methods
+
+## Sample collection and extraction protocols
+
+### *Brachypodium distachyon* tissue collection and extraction
+
+Plants of *Brachypodium distachyon* ecotypes ABR1, ABR5, ABR6 and Bd21 were grown for 21 days in environmentally controlled growth rooms (Polysec, R. J. Hicks Refrigeration, Aberystwyth, UK) at 23 ^$\circ$^C under a 16 hour light period. 
+A total of 15 plants of each ecotype were harvested by detaching the 2nd fully developed leaf from the base of the plant and dissecting the middle 4 cm segment. 
+Each sample was then placed in a 2 mL Eppendorf tube containing a 4mm steel ball bearing and snap frozen in liquid nitrogen.
+Samples were stored at -80 ^$\circ$^C until extraction. 
+All harvesting was conducted in the growth room to avoid environmental fluctuations.
+
+The frozen samples were milled using a Retsch 301 Mixer Mill at 30 Hz for 30 seconds and then placed on crushed ice. 
+700 $\mu$L of pre-chilled extraction solvent (CHCl~3~:MeOH:H~2~O; 1:2.5:1; v:v:v) was immediately added and suspended by vortexing (Scientific Industries Vortex Genie-2). 
+Samples were placed on an orbital shaker (FATSN002, Favorgen Biotech Corp) for 20 minutes at 1,400 rpm and a temperature of 4 ^$\circ$^C. 
+After shaking, the samples were centrifuged (EBA 12R, Hettich) at 13,000 rpm for 6 minutes at 0 ^$\circ$^C. 
+The supernatant of each sample was then transferred to a new 2 mL Eppendorf tube and the pellet was discarded. 
+The samples were stored at -80 ^$\circ$^C until MS analysis.
+
+### Human urine extraction and addition of chemical standards
+
+Mixed gender, unfiltered pooled human urine (BioIVT, Catalog# HUMANURINEPNN, Lot# 0393918) from healthy donors was extracted  by adding 500 $\mu$L of pre-chilled MeOH (Extraction Grade, Fisher Scientific) and vortexing. 
+Samples were placed on an orbital shaker (FATSM002, Favorgen Biotech Corp) for 20 minutes at 1,400 rpm and 4 ^$\circ$^C in the dark. 
+The samples were centrifuged (EBA 12 R, Hettich) at 13,000 rpm for 5 minutes at 4 ^$\circ$^C and 20 $\mu$L of the supernatant was transferred to a clean glass HPLC vial, containing a 200 $\mu$L flat bottom micro insert (Chromacol) and diluted with 80 $\mu$L of H~2~O:MeOH (3:7) directly in the vial. 
+
+The `r tar_read(spiked_urine_compound_info) %>% nrow()` chemical standards were dissolved in a solvent mixture of methanol, water and formic acid (70%:30%:0.1%), each 4.5 $\mu$g/ml concentration.
+700 $\mu$L of urine and 300 $\mu$L of the standards mixture were combined to produce the spiked urine sample.
+
+## MS analysis
+
+FIE-HRMS mass spectra were acquired on an Exactive Orbitrap (ThermoFinnigan, San Jose CA) mass spectrometer coupled to an Accela (ThermoFinnigan, San Jose CA) ultra-performance liquid chromatography (LC) system for the *B. distachyon* samples and the Human urine on a Q-Exactive Orbitrap (ThermoFinnigan, San Jose CA) coupled to a Dionex (ThermoFinnigan, San Jose CA) ultra-performance LC system. 
+A sample volume of 20 $\mu$L was injected and delivered to the electrospray ionisation (ESI) source via a 'plug' flow solvent of pre-mixed HPLC grade MeOH (Fisher Scientific) and ultra-pure H~2~O (18.2 $\Omega$) at a ratio of 7:3. 
+The initial flow rate was 60 $\mu$L min^-1^ for 0.4 minutes and increased to 200 $\mu$L min^-1^ over 0.8 minutes. 
+The flow rate was maintained at 200 $\mu$L min^-1^ for 0.3 minutes then increased to 600 $\mu$L min^-1^ over 1.5 minutes. 
+Then the flow rate was then returned to 60 $\mu$L min^-1^ for 0.5 minutes. 
+The total gradient time was 3.5 minutes. The capillary temperature and voltage were set at 270 ^$\circ$^C and 37.50 kV respectively. 
+
+For the *B. distachyon* samples, mass spectra were acquired using a single scan filter for each of the positive and negative ionisation modes. 
+Positive ions were acquired between 55.000 and 1000.000 *m/z*, and  63.000 and 1000.000 *m/z* for negative ions.
+Mass spectra for the spiked human urine were acquired with two scan events between 55-280 *m/z* and 270-1200 *m/z* for each of the positive and negative acquisition modes.
+For all scan events, the scan rate was 1 Hz with a mass resolution of 100,000. 
+The automatic gain control (AGC) target was 5 x10^5^ and the total ion injection time 250 ms.
+
+Each biological matrix was analysed in separate analytical runs.
+For the spiked urine, a total of 50 replicate injections were performed.
+Three blank injections were preformed prior to the analytical replicate injections, using the solvent mixture used in the sample preparation of the particular matrix. 
+For the *B. distachyon* samples, the samples were organised into randomised blocks, with each ecotype class represented by two samples in each block.
+Similarly to the spiked urine samples, three blank injections were performed first, followed by three quality control samples (QC) injections.
+The QC samples were made up of equal parts of each of the 60 samples in the run.
+A QC sample injection then followed each of the random blocks.
+
+C18-UHPLC-HRMS analyses were performed on an Orbitrap Fusion Tribrid mass spectrometer (Thermo Scientific) that was coupled to a Ultimate 3000 liquid chromatography tower (Dionex, Thermo Scientific). 
+Mass spectra were acquired using a single scan filter for each of the positive and negative ionisation modes between a range of 100-2000 m/z. For all scan events, the scan rate was 1 Hz with a mass resolution of 100,000. The automatic gain control (AGC) target was 5 x10^5.
+
+A Hypersil Gold reverse phase C18 column (2.1 mm x 150 mm; particle size 1.9 $\mu$m) was used for chromatography, which was maintained at a temperature of 60 $^\circ$C. 
+The mobile phases consisted of ultra-pure water - formic acid (100:0.1) (A), LC-MS grade methanol -formic acid (100:0.1) (B) and HPLC grade isopropyl alcohol - LCMS grade methanol (1:1) (C). 
+The initial condition was A:B (99:1.0) for 0.5 minutes and the percentage of B increased linearly over 6 minutes, to 60.0%. 
+The percentage of B was increased further for another 4 minutes to 100% and held for 2 minutes. 
+C was then introduced over 0.1 minutes to 100% and held for 1.4 minutes.
+Prior to re-equilibration, 100% C was switched to 100% B in 0.1 minutes and then returned to the starting conditions of A:B (99:1).
+This was held for 3.4 minutes giving a total method time was 17 minutes. 
+The flow rate was kept at 400 $\mu$L min^-1^ except for between 12.1 and 13.6 minutes where it was reduced to 300 $\mu$L min^-1^.
+
+## Spectral processing
+
+After the MS data were acquired, the raw mass spectra data files (.RAW, ThermoFinnigan) were converted to the universal mass spectrometry open file format, mzML.
+The conversion and vendor centroiding were performed using *msconvert* from the Proteowizard tool pack. 
+
+The FIE-HRMS fingerprinting data were spectrally processed by performing spectral binning to 0.01 amu using the R package *binneR* v`r packageVersion('binneR')`.
+The infusion scans were detected using a total ion count threshold of above 50% of the maximum total ion count across the infusion profile. 
+
+For C18-UHPLC-HRMS, spectral processing was performed using the R package *xcms* v`r packageVersion('xcms')`.
+Peak detection used the *centWave* algorithm, with the tolerated deviation between consecutive scans set at 8.2 parts per million (ppm), a minimum and maximum peak width of 16 and 43 seconds respectively and a signal to noise threshold of 7. 
+The *Obiwarp* algorithm was used for retention time correction with a bin size of 0.7, a gap opening penalty of 2.9 and a gap enlargement penalty of 2.7. 
+Peak grouping was performed using peak density, with a bin size of 0.00775 amu, a chromatographic bandwidth of 5 seconds and a minimum group fraction of two thirds. 
+The *fillPeaks* method was used to integrate the areas of missing peaks using the default parameters. 
+
+## Data pre-treatment
+
+The pre-treatment routines were performed separately for positive and negative ionisation mode features, with the features subsequently combined into a single intensity matrix.
+
+For FIE-HRMS of the spiked urine, *m/z* were first filtered based on an overall occupancy threshold of two thirds.
+All missing values were then imputed using random forest imputation. Only *m/z* features with a relative standard deviation (RSD) value below 50% were retained and finally a total ion count (TIC) normalisation was applied to each sample.
+
+For the FIE-HRMS of the *B. distachyon* samples, a median centring batch correction was first performed where the median of each feature for each randomised block of samples were adjusted to the overall median.
+The QC samples were used to calculate the RSD of each feature across the run batch.
+These samples were first prepared by retaining only features with an occupancy above two thirds, and imputing missing values using random forest imputation.
+Features with an RSD below 50% were retained and the QC samples were subsequently removed.
+A maximum occupancy feature filter was then applied where features were retained if at least a single ecotype class had an occupancy of above two thirds of the samples.
+Class-wise imputation using random forest was performed on features with a class occupancy greater than two thirds. 
+Finally, a TIC normalisation was applied to each of the samples.
+
+For the C18-UHPLC-HRMS of the *B. distachyon* samples, these data were pre-treatment as for FIE-HRMS fingerprinting data with the exception that a RSD filtering threshold of 20% was instead applied.
+ 
+## Performance benchmarking of the *assignments* R package
+
+```{r benchmarking-info}
+targets::tar_load(cpu_information)
+targets::tar_load(memory_information)
+n_reps <- xfun::numbers_to_words(n_reps)
+n_correlations <-  n_correlations %>% 
+  prettyNum(big.mark=",",
+            scientific=FALSE) %>% 
+  str_as_written_list()
+n_cores <- n_cores %>% 
+  str_as_written_list()
+```
+
+Processing time was benchmarked for all the combinations of maximum number of correlations (`r n_correlations`) and CPU workers (`r n_cores`).
+For each test, the molecular formula assignment routine was performed on the pre-treated spiked urine data matrix with all other parameters as the defaults using the R package *assignments* v`r packageVersion('assignments')`.
+Tests were conducted on a Dell high performance computing blade with an `r cpu_information$Value[cpu_information$Type == 'Model name']` model processor with `r cpu_information$Value[cpu_information$Type == 'CPU(s)']` CPUs, `r memory_information$Size[memory_information$Type == 'MemTotal'] %>% as.character()`B of RAM and `r osVersion` operating system.
+
+The R package *rbenchmark* v`r packageVersion('rbenchmark')` was used to measure processing time with `r n_reps` replications of each correlation and CPU workers combination.
