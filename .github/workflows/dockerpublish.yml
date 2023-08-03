@@ -28,3 +28,4 @@ jobs:
           IMAGE_ID=ghcr.io/ghcr.io/${{ github.actor }}/molecular-formula-assignment
           docker tag molecular-formula-assignment $IMAGE_ID:latest
           docker push $IMAGE_ID:latest
+
