@@ -25,7 +25,7 @@ knitr::opts_chunk$set(echo = FALSE,
 
 **Authors:**  Jasen P. Finch^1\*^, Thomas Wilson^1^, Laura Lyons^1^, Helen Phillips^1^, Manfred Beckmann^1^ & John Draper^1^
 
-^\*^ Corresponding author
+^\*^ Correspondence to jsf9@aber.ac.uk
 
 **Addresses:**
 
