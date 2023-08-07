@@ -6,6 +6,14 @@ manuscript_targets <- list(
     assignmentApproach()
   ),
   
+  ## Additional file info
+  tarchetypes::tar_render(
+    additional_files,
+    'manuscript/additional_files.Rmd',
+    output_file = 'Additional_files.pdf',
+    output_dir = 'exports/manuscript/supplementary_materials'
+  ),
+  
   ## Supplementary materials and methods
   tarchetypes::tar_render(
     supplementary_methods,

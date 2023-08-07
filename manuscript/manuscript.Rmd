@@ -555,25 +555,5 @@ Not applicable
 #                       checks = 'word count')
 ```
 
-# Additional files
-
-Additional file 1.csv - Table S1 -
-Chemical identifiers of the compounds spiked into the urine extract.
-
-Additional file 2.pdf - Supplementary materials and methods -
-Further details outlining the materials and methods used in this article. 
-
-Additional file 3.pdf - Supplementary tables -
-Supplementary tables S2, S3, S4 and S5 showing adduct, isotopic, transformation and R package benchmarking information respectively.
-
-Additional file 4.csv - Table S6 -
-The molecular formula assignments for *m/z* across all experimental matrices along with any match KEGG compound IDs.
-
-Additional file 5.csv Table S7 -
-The *m/z* features directly matched to predicted ionisation products of the spiked chemical compounds in urine.
-
-Additional file 6.csv Table S8 -
-The *m/z* features assigned to spiked chemical compounds in urine.
-
 # References
 
