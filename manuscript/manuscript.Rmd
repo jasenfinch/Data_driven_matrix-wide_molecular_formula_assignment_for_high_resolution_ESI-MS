@@ -116,7 +116,7 @@ spiked_urine_compound_MFs <- spiked_urine_compound_info %>%
 ```
 
 Two example sample matrices were used for assessing the molecular formula assignment approach. 
-The first was human urine spiked with a diverse mixture of `r nrow(spiked_urine_compound_info)` chemical standards from a previously validated assay that included `r spiked_urine_compound_MFs` unique molecular formulas [@beckmann2020].
+The first was human urine purchased from BioIVT (Catalog# HUMANURINEPNN, Lot# 0393918) and spiked with a diverse mixture of `r nrow(spiked_urine_compound_info)` chemical standards from a previously validated assay that included `r spiked_urine_compound_MFs` unique molecular formulas [@beckmann2020].
 A full list of the names and InChI chemical identifiers of the spiked chemical standards can be found in Additional file 1.
 The second was healthy leaf tissue samples collected from four ecotypes of the model grass species *Brachypodium distachyon* using the method described in @parker2008.
 Further details of the sample collection and extraction are described in the Additional file 2.
@@ -523,7 +523,7 @@ Assignments can be used as inputs for enrichment analyses, providing a fast rout
 
 ## Ethics approval and consent to participate
 
-Not applicable
+The human urine was purchased from BioIVT (Catalog# HUMANURINEPNN, Lot# 0393918) with no ethical approval required for use.
 
 ## Consent for publication
 
