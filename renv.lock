@@ -876,15 +876,14 @@
     },
     "assignments": {
       "Package": "assignments",
-      "Version": "1.0.0",
+      "Version": "1.0.1",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
       "RemoteUsername": "aberHRML",
       "RemoteRepo": "assignments",
-      "RemoteRef": "master",
-      "RemoteSha": "88537c0bfe513af211659db2621822ff9e41c653",
-      "Remotes": "aberHRML/mzAnnotation, jasenfinch/metabolyseR",
+      "RemoteRef": "devel",
+      "RemoteSha": "3c24aef6934b8900efcd5c8759da23aabad8af11",
       "Remotes": "aberHRML/mzAnnotation, jasenfinch/metabolyseR",
       "Requirements": [
         "R",
@@ -906,7 +905,7 @@
         "tidygraph",
         "tidyr"
       ],
-      "Hash": "1800cbca872ea1398a4379c3f970295d"
+      "Hash": "e1d23c5b576359c77615a3dc94c34a34"
     },
     "backports": {
       "Package": "backports",
