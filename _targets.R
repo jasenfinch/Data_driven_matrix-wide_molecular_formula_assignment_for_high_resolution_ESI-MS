@@ -7,7 +7,7 @@
 list(
   KEGG_compound_targets,
   MF_selection_targets,
-  spiked_urine_targets,
+  standards_targets,
   brachy_targets,
   assignment_results_targets,
   benchmarking_targets,
