@@ -4,8 +4,33 @@ techniques <- c(
   'RP-UHPLC-HRMS'
 ) 
 
-brachy_targets <- purrr::map(
+assignment_parameters <- list(
+  `FIE-HRMS` = assignments::assignmentParameters("FIE-HRMS"),
+  `RP-UHPLC-HRMS` = assignments::assignmentParameters("RP-LC-HRMS")
+)
+
+assignments::adducts(assignment_parameters$`FIE-HRMS`)$n <- c("[M-H]1-","[M+Cl]1-","[M+Cl37]1-","[M+K-2H]1-","[M-2H]2-","[2M-H]1-")
+assignments::adducts(assignment_parameters$`RP-UHPLC-HRMS`)$n <- c("[M-H]1-","[M+Cl]1-","[M+Cl37]1-","[M+K-2H]1-","[M-2H]2-","[2M-H]1-")
+
+assignment_parameters <- assignment_parameters %>% 
+  purrr::map(
+    ~{
+      assignments::isotopes(.x) <- c('13C','18O')
+      .x
+    }
+  )
+
+assignment_parameters <- assignment_parameters %>% 
+  purrr::map(
+    ~{
+      assignments::ppm(.x) <- 4
+      .x
+    }
+  )
+
+brachy_targets <- purrr::map2(
   techniques,
+  assignment_parameters,
   ~{
     target_name <- .x %>% 
       stringr::str_replace_all('-','_') %>% 
@@ -36,8 +61,8 @@ brachy_targets <- purrr::map(
                                     export_path = NULL),
       hrmtargets::tar_mf_assignment(
         !!target_name,
-        parameters = assignments::assignmentParameters(.x %>%
-                                                      stringr::str_remove('UHP')),
+        parameters = .y,
+        separate = TRUE,
         export_path = NULL
       ),
       
