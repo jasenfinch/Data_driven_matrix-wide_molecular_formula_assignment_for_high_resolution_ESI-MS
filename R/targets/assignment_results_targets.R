@@ -11,6 +11,24 @@ assignment_results_targets <- list(
       n_features = ncol(.x@data),
       n_correlations = nrow(.x@correlations),
       n_relationships = nrow(.x@relationships),
+      n_ai_assignments = .x %>% 
+        assignments::assignments() %>% 
+        dplyr::filter(
+          stringr::str_detect(
+            Iteration,
+            'A&I'
+          )
+        ) %>% 
+        nrow(),
+      n_t_assignments = .x %>% 
+        assignments::assignments() %>% 
+        dplyr::filter(
+          stringr::str_detect(
+            Iteration,
+            'T'
+          )
+        ) %>% 
+        nrow(),
       n_assignments = .x %>% 
         assignments::assignments() %>% 
         nrow(),

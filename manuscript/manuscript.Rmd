@@ -371,7 +371,8 @@ A total of `r brachy_shared_MFs` molecular formulas were assigned in both the FI
 tar_read(assignment_results) %>%
   left_join(tar_read(assignment_matches), 
             by = c("matrix", "technique")) %>% 
-  mutate(matrix = paste(matrix,technique)#,
+  mutate(
+    matrix = paste(matrix,technique)
   ) %>%
   mutate(n_assignments = glue::glue(
     '{n_assignments} ({signif(n_assignments/n_features * 100,digits = 3)}\\%)'),
@@ -380,6 +381,8 @@ tar_read(assignment_results) %>%
   dplyr::rename(`\\textit{m/z} features` = n_features,
                 correlations = n_correlations,
                 relationships = n_relationships,
+                `adduct and isotopic step assignments` = n_ai_assignments,
+                `transformation step assignments` = n_t_assignments,
                 `assigned features` = n_assignments,
                 `molecular formulas (MF)` = n_MFs,
                 `KEGG compound matches` = KEGG_compound_matches,
@@ -390,7 +393,7 @@ tar_read(assignment_results) %>%
                          Value == 'NA',
                          'N/A')) %>% 
   tidyr::spread(matrix,Value) %>% 
-  slice(c(1,3,8,2,7,5,4,6)) %>%
+  slice(c(1,3,10,8,9,2,7,5,4,6)) %>%
   set_colnames(stringr::str_split_fixed(colnames(.),
                                         ' ',2)[,2]) %>% 
   knitr::kable(
