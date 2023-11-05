@@ -401,6 +401,36 @@ standards_evaluation_targets <- matrix_info %>%
               )
           )
         ),
+        
+        tar_target_raw(
+          paste0(.x$sample,'_assignments_T'),
+          rlang::expr(
+            !!rlang::sym(paste0(.x$sample,'_assignments')) %>%
+              dplyr::bind_rows() %>% 
+              dplyr::filter(
+                stringr::str_detect(
+                  Iteration,
+                  'T'
+                )
+              )
+          )
+        ),
+        
+        tar_target_raw(
+          paste0(.x$sample,'_compound_assignments_T'),
+          rlang::expr(
+            !!rlang::sym(paste0(.x$sample,'_feature_matches')) %>% 
+              dplyr::inner_join(
+                !!rlang::sym(paste0(.x$sample,'_assignments_T')) %>% 
+                  dplyr::select(
+                    MF,
+                    Isotope,
+                    Adduct
+                  ),
+                by = dplyr::join_by(MF, Isotope, Adduct)
+              ) 
+          )
+        ),
 
         tar_target_raw(
           paste0(.x$sample,'_assignment_outcomes'),
@@ -643,6 +673,133 @@ standards_figures_targets <- list(
         sample,`# IPs`,
         fill = 0
       )
+  ),
+  
+  tar_target(
+    assignment_outcomes_non_iso,
+    list(
+      standards = standards_assignment_outcomes_non_iso,
+      spiked_urine = spiked_urine_assignment_outcomes_non_iso
+    ) %>% 
+      dplyr::bind_rows(
+        .id = 'sample'
+      ) 
+  ),
+  
+  tar_target(
+    correct_assignments,
+    list(
+      standards = standards_correct_assignments,
+      spiked_urine = spiked_urine_correct_assignments
+    ) %>% 
+      dplyr::bind_rows(
+        .id = 'sample'
+      )
+  ),
+  
+  tar_target(
+    compound_assignments_T,
+    list(
+      standards = standards_compound_assignments_T,
+      spiked_urine = spiked_urine_compound_assignments_T
+    ) %>% 
+      dplyr::bind_rows(
+        .id = 'sample'
+      )
+  ),
+  
+  tar_target(
+    standards_compound_outcomes,
+    assignment_outcomes_non_iso %>% 
+      dplyr::select(sample,MF) %>% 
+      dplyr::distinct() %>% 
+      dplyr::count(sample) %>% 
+      dplyr::rename(
+        `Matched to m/z features` = n
+      ) %>% 
+      dplyr::left_join(
+        assignment_outcomes_non_iso %>% 
+          dplyr::filter(
+            correlations == TRUE
+          ) %>% 
+          dplyr::select(sample,MF) %>% 
+          dplyr::distinct() %>% 
+          dplyr::count(sample) %>% 
+          dplyr::rename(
+            `Correlated` = n
+          ),
+        by = 'sample'
+      ) %>% 
+      dplyr::left_join(
+        assignment_outcomes_non_iso %>% 
+          dplyr::filter(
+            matching_assignment == TRUE
+          ) %>% 
+          dplyr::select(sample,MF) %>% 
+          dplyr::distinct() %>% 
+          dplyr::count(sample) %>% 
+          dplyr::rename(
+            `Assigned during A&I assignment step` = n
+          ),
+        by = 'sample'
+      ) %>% 
+      dplyr::left_join(
+        compound_assignments_T %>% 
+          dplyr::select(sample,MF) %>%
+          dplyr::anti_join(
+            assignment_outcomes_non_iso %>% 
+              dplyr::filter(
+                matching_assignment == TRUE
+              ) %>% 
+              dplyr::select(sample,MF) %>% 
+              dplyr::distinct(),
+            by = c(
+              'sample',
+              'MF'
+            )
+          ) %>% 
+          dplyr::distinct() %>% 
+          dplyr::count(sample) %>% 
+          dplyr::rename(
+            `Assigned during T assignment step` = n
+          ),
+        by = 'sample'
+      ) %>% 
+      dplyr::left_join(
+        correct_assignments %>% 
+          dplyr::select(sample,MF) %>%
+          dplyr::distinct() %>% 
+          dplyr::count(sample) %>% 
+          dplyr::rename(
+            `Assigned` = n
+          ),
+        by = 'sample'
+      ) %>% 
+      tidyr::gather(
+        outcome,
+        n,
+        -sample
+      ) %>% 
+      tidyr::spread(
+        sample,
+        n
+      ) %>% 
+      dplyr::mutate(
+        outcome = factor(
+          outcome,
+          levels = c(
+            'Matched to m/z features',
+            'Correlated',
+            'Relevant relationships',
+            'Assigned during A&I assignment step',
+            'Assigned during T assignment step',
+            'Assigned'
+          )
+        )
+      ) %>% 
+      dplyr::arrange(
+        outcome
+      ) 
   )
 )
 
