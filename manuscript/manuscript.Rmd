@@ -388,25 +388,27 @@ tar_read(assignment_results) %>%
   tidyr::gather(Variable,Value,-matrix) %>% 
   mutate(Value = replace(Value,
                          Value == 'NA',
-                       'N/A')) %>% 
+                         'N/A')) %>% 
   tidyr::spread(matrix,Value) %>% 
   slice(c(1,3,8,2,7,5,4,6)) %>%
   set_colnames(stringr::str_split_fixed(colnames(.),
                                         ' ',2)[,2]) %>% 
-  knitr::kable(format = 'latex',
-               booktabs = TRUE,
-               linesep = '',
-               escape = FALSE,
-               align = c(
-                 rep('l',1),
-                 rep('r',3)
-               ),
-               caption = 'A summary of the molecular formula assignment results for the example sample matrices. The number of matched chemical standards is given as the number of unique molecular formulas.') %>% 
-  kable_styling(latex_options = "HOLD_position") %>% 
+  knitr::kable(
+    format = 'latex',
+    booktabs = TRUE,
+    linesep = '',
+    escape = FALSE,
+    align = c(
+      rep('l',1),
+      rep('r',3)
+    ),
+    caption = 'A summary of the molecular formula assignment results for the example sample matrices. The number of matched chemical standards is given as the number of unique molecular formulas.') %>%
+  kable_styling(latex_options = "HOLD_position") %>%
   add_header_above(c(
-    " ", 
-    "\\\\textit{B. distachyon} leaf" = 2, 
-    "Human urine" = 1),
+    " ",
+    "\\\\textit{B. distachyon} leaf" = 2,
+    "Human urine" = 1,
+    "Standards mix" = 1),
     escape = FALSE)
 ```
 

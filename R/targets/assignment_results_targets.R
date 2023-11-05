@@ -3,6 +3,7 @@ assignment_results_targets <- list(
   tar_target(
     assignment_results,
     list(
+      `standards-mix_FIE-HRMS` = standards_results_molecular_formula_assignment,
       `spiked-urine_FIE-HRMS` = spiked_urine_results_molecular_formula_assignment,
       `brachy_FIE-HRMS` = brachy_FIE_HRMS_results_molecular_formula_assignment,
       `brachy_C18-UHPLC-HRMS` = brachy_RP_UHPLC_HRMS_results_molecular_formula_assignment
@@ -36,13 +37,33 @@ assignment_results_targets <- list(
         KEGG_compound_matches = nrow(.x)
       )) %>% 
       bind_rows(.id = 'matrix') %>% 
-      mutate(
-        matched_standards = c(spiked_urine_correct_assignments$MF %>% 
-                                unique() %>% 
-                                length(),
-                              rep(NA,2))
-      ) %>% 
       tidyr::separate(matrix,
-                      c('matrix','technique'),sep = '_')
+                      c('matrix','technique'),sep = '_') %>% 
+      dplyr::full_join(
+        correct_assignments %>% 
+          dplyr::select(
+            sample,
+            MF
+          ) %>% 
+          dplyr::distinct() %>% 
+          dplyr::count(
+            sample
+          ) %>% 
+          dplyr::rename(
+            matched_standards = n
+          ) %>% 
+          dplyr::mutate(
+            sample = sample %>% 
+              stringr::str_replace(
+                '_',
+                '-'
+              ),
+            technique = 'FIE-HRMS'
+          ),
+        by = dplyr::join_by(
+          matrix == sample,
+          technique
+        )
+      )  
   )
 )
