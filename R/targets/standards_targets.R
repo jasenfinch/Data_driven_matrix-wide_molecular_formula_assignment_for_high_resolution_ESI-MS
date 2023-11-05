@@ -627,7 +627,23 @@ standards_figures_targets <- list(
   
   ## Match assignments to human specific KEGG compounds
   tar_KEGG_matches(spiked_urine,
-                   KEGG_IRs_human)
+                   KEGG_IRs_human),
+  
+  tar_target(
+    assignment_outcomes_summary,
+    list(
+      standards = standards_assignment_outcomes_summary,
+      spiked_urine = spiked_urine_assignment_outcomes_summary
+    ) %>% 
+      dplyr::bind_rows(
+        .id = 'sample'
+      ) %>% 
+      dplyr::select(-`%`) %>% 
+      tidyr::spread(
+        sample,`# IPs`,
+        fill = 0
+      )
+  )
 )
 
 standards_targets <- list(
