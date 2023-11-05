@@ -20,13 +20,7 @@ assignment_parameters <- assignment_parameters %>%
     }
   )
 
-assignment_parameters <- assignment_parameters %>% 
-  purrr::map(
-    ~{
-      assignments::ppm(.x) <- 4
-      .x
-    }
-  )
+assignments::ppm(assignment_parameters$`RP-UHPLC-HRMS`) <- 4
 
 brachy_targets <- purrr::map2(
   techniques,
