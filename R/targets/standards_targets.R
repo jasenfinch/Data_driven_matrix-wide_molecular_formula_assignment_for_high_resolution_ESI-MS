@@ -34,6 +34,28 @@ matrix_info <- tibble::tibble(
   )
 )
 
+assignment_outcomes <- list(
+  standards = c(
+    'No correlations',
+    'No relevant relationships',
+    'No relevant relationships',
+    'Eliminated, unassigned',
+    'Alternative adduct, alternative MF',
+    'Matching adduct, MF outside top 3',
+    'Matching adduct, matching MF'
+  ),
+  spiked_urine = c(
+    'No correlations',
+    'No relevant relationships',
+    'No relevant relationships',
+    'Eliminated, unassigned',
+    'Alternative adduct, alternative MF',
+    'Matching adduct, MF outside top 3',
+    'Matching adduct, alternative MF',
+    'Matching adduct, matching MF'
+  ) 
+)
+
 standards_processing_targets <- matrix_info %>% 
   dplyr::rowwise() %>% 
   dplyr::group_split() %>% 
@@ -88,508 +110,529 @@ standards_processing_targets <- matrix_info %>%
                 )
               )
             )
-              )
           )
+        )
       )   
     }
   )
 
-standards_targets <- list(
-  standards_processing_targets
+standards_compound_targets <- list(
+  ## chemical standards compound info file
+  tarchetypes::tar_file(
+    standards_compound_info_file,
+    {
+      'spiked_chemical_standards_info.csv' %>%
+        piggyback::pb_download(dest = 'data',
+                               tag = 'spiked-urine')
+
+      'data/spiked_chemical_standards_info.csv'
+    }
+  ),
+
+  ## load chemical standards compound info
+  tar_target(
+    standards_compound_info,
+    readr::read_csv(standards_compound_info_file) %>%
+      dplyr::rowwise() %>%
+      dplyr::mutate(SMILES = cheminf::convert(
+        InChI,
+        'INCHI',
+        'SMILES'),
+        MF = cheminf::smilesToMF(SMILES))
+  ),
+
+  ## calculate chemical standards compound descriptors
+  tar_target(
+    standards_compound_db,
+    cheminf::metaboliteDB(
+      standards_compound_info %>%
+        dplyr::rename(ID = CID,
+                      NAME = Name)
+    )
+  ),
+
+  ## calculate possible adducts for the standards
+  tar_target(
+    standards_compound_adducts,
+    standards_compound_db %>%
+      cheminf::entries() %>%
+      .$ID %>%
+      furrr::future_map(cheminf::calcAdducts,
+                        db = standards_compound_db) %>%
+      purrr::set_names(standards_compound_db %>%
+                         cheminf::entries() %>%
+                         .$ID) %>%
+      dplyr::bind_rows(.id = 'ID') %>%
+      dplyr::left_join(mzAnnotation::adduct_rules() %>%
+                         dplyr::select(Name,Nelec),
+                       by = c('Adduct' = 'Name')) %>%
+      dplyr::mutate(ID = as.numeric(ID),
+                    Mode = replace(Nelec,
+                                   Nelec > 0,
+                                   'n') %>%
+                      replace(Nelec < 0,
+                              'p')) %>%
+      dplyr::select(-Nelec,-MF) %>%
+      dplyr::filter(Possible == TRUE,
+                    Adduct %in%
+                      mzAnnotation::adduct_rules()$Name[mzAnnotation::adduct_rules()$Default == 1]) %>%
+      dplyr::left_join(standards_compound_db %>%
+                         cheminf::entries(),
+                       by = 'ID') %>%
+      dplyr::select(ID,NAME,InChI,MF,Adduct,Mode,`m/z`) %>%
+      dplyr::filter(
+        Adduct %in% {assignment_parameters %>%
+            assignments::adducts() %>% 
+            purrr::flatten_chr()})
+  ),
+
+  ## calculate possible spiked compound isotopes
+  tar_target(
+    standards_compound_isotopes,
+    assignment_parameters %>%
+      assignments::isotopes() %>%
+      purrr::map_dfr(~{
+        isotope <- .x
+        standards_compound_adducts %>%
+          dplyr::group_split(MF) %>%
+          furrr::future_map(~{
+            if (mzAnnotation::isotopePossible(.x$MF[1],isotope = isotope)){
+              .x %>%
+                dplyr::rowwise() %>%
+                dplyr::mutate(Isotope = isotope,
+                              `m/z` = MF %>%
+                                mzAnnotation::calcAccurateMass() %>%
+                                mzAnnotation::calcMZ(adduct = Adduct,
+                                                     isotope = isotope))
+            }
+          },.options = furrr::furrr_options(seed = TRUE))
+      })
+  ),
+
+  ## combine all possible PIPs for the chemical standards
+  tar_target(
+    standards_compound_PIPs,
+    dplyr::bind_rows(
+      standards_compound_adducts,
+      standards_compound_isotopes
+    )
+  )
 )
 
-# standards_evaluation_targets <- list(
-#   
-# )
-# 
-# standards_targets <- list(
-#   ## spiked_urine compound info file
-#   tarchetypes::tar_file(
-#     spiked_urine_compound_info_file,
-#     {
-#       'spiked_chemical_standards_info.csv' %>% 
-#         piggyback::pb_download(dest = 'data',
-#                                tag = 'spiked-urine')
-#       
-#       'data/spiked_chemical_standards_info.csv' 
-#     }
-#   ),
-#   
-#   ## load spiked_urine compound info
-#   tar_target(
-#     spiked_urine_compound_info,
-#     readr::read_csv(spiked_urine_compound_info_file) %>% 
-#       dplyr::rowwise() %>% 
-#       dplyr::group_split() %>% 
-#       purrr::map_dfr(~ .x %>% 
-#                        dplyr::mutate(SMILES = cheminf::convert(
-#                          InChI,
-#                          'INCHI',
-#                          'SMILES'),
-#                          MF = cheminf::smilesToMF(SMILES)))
-#   ),
-#   
-#   ## calculate spiked compound descriptors
-#   tar_target(
-#     spiked_urine_compound_db,
-#     cheminf::metaboliteDB(
-#       spiked_urine_compound_info %>% 
-#         dplyr::rename(ID = CID,
-#                       NAME = Name)
-#     )
-#   ),
-#   
-#   ## calculate possible spiked compound adducts
-#   tar_target(
-#     spiked_urine_compound_adducts,
-#     spiked_urine_compound_db %>%
-#       cheminf::entries() %>%
-#       .$ID %>%
-#       purrr::map(cheminf::calcAdducts,
-#                  db = spiked_urine_compound_db) %>%
-#       set_names(spiked_urine_compound_db %>%
-#                   cheminf::entries() %>%
-#                   .$ID) %>%
-#       dplyr::bind_rows(.id = 'ID') %>%
-#       dplyr::left_join(mzAnnotation::adduct_rules() %>% 
-#                          dplyr::select(Name,Nelec),
-#                        by = c('Adduct' = 'Name')) %>%
-#       dplyr::mutate(ID = as.numeric(ID),
-#                     Mode = replace(Nelec,
-#                                    Nelec > 0,
-#                                    'n') %>% 
-#                       replace(Nelec < 0,
-#                               'p')) %>%
-#       dplyr::select(-Nelec,-MF) %>%
-#       dplyr::filter(Possible == TRUE,
-#                     Adduct %in% 
-#                       mzAnnotation::adduct_rules()$Name[mzAnnotation::adduct_rules()$Default == 1]) %>%
-#       dplyr::left_join(spiked_urine_compound_db %>%
-#                          cheminf::entries(),
-#                        by = 'ID') %>%
-#       dplyr::select(ID,NAME,InChI,MF,Adduct,Mode,`m/z`) %>%
-#       dplyr::filter(
-#         Adduct %in% {assignments::adducts(spiked_urine_results_molecular_formula_assignment) %>% 
-#             purrr::flatten_chr()})
-#   ),
-#   
-#   ## calculate possible spiked compound isotopes
-#   tar_target(
-#     spiked_urine_compound_isotopes,
-#     spiked_urine_results_molecular_formula_assignment %>%
-#       assignments::isotopes() %>% 
-#       map_dfr(~{
-#         isotope <- .x
-#         spiked_urine_compound_adducts %>% 
-#           group_split(MF) %>% 
-#           furrr::future_map(~{
-#             if (mzAnnotation::isotopePossible(.x$MF[1],isotope = isotope)){
-#               .x %>% 
-#                 rowwise() %>% 
-#                 mutate(Isotope = isotope,
-#                        `m/z` = MF %>% 
-#                          mzAnnotation::calcAccurateMass() %>% 
-#                          mzAnnotation::calcMZ(adduct = Adduct,
-#                                               isotope = isotope))
-#             }
-#           },.options = furrr::furrr_options(seed = TRUE))    
-#       })
-#   ),
-#   
-#   ## combine possible spiked compound PIP
-#   tar_target(
-#     spiked_urine_compound_PIPs,
-#     bind_rows(
-#       spiked_urine_compound_adducts,
-#       spiked_urine_compound_isotopes
-#     )
-#   ),
-#   
-#   tar_target(
-#     spiked_urine_assignments,
-#     spiked_urine_results_molecular_formula_assignment %>% 
-#       assignments::assignments()
-#   ),
-#   
-#   ## Match assignments to human specific KEGG compounds
-#   tar_KEGG_matches(spiked_urine,
-#                    KEGG_IRs_human),
-#   
-#   ## Extract the spiked urine features
-#   tar_target(
-#     spiked_urine_features,
-#     spiked_urine_results_pre_treatment %>% 
-#       {
-#         tibble::tibble(
-#           Feature = metabolyseR::features(.,
-#                                           type = 'pre-treated')
-#         ) 
-#       } %>% 
-#       dplyr::mutate(
-#         Mode = stringr::str_sub(Feature,1,1),
-#         mz = stringr::str_remove_all(Feature,'[:alpha:]') %>%
-#           as.numeric()
-#       )
-#   ),
-#   
-#   ## Directly match spiked compound putative adducts to features
-#   tar_target(
-#     spiked_urine_compound_matches,
-#     spiked_urine_compound_PIPs %>%
-#       dplyr::rowwise() %>% 
-#       dplyr::group_split() %>% 
-#       purrr::map_dfr(~{
-#         ppm_range <- mzAnnotation::ppmRange(.x$`m/z`,
-#                                             spiked_urine_search_ppm)
-#         
-#         matches <- spiked_urine_features %>%
-#           dplyr::filter(Mode == .x$Mode,
-#                         mz > ppm_range$lower,
-#                         mz < ppm_range$upper) %>%
-#           dplyr::mutate(`PPM error` = mzAnnotation::ppmError(mz,
-#                                                              .x$`m/z`) %>%
-#                           abs())
-#         
-#         if(nrow(matches) > 0){
-#           dplyr::bind_cols(dplyr::select(.x,
-#                                          ID:Adduct,Isotope,
-#                                          `Theoretical m/z` = `m/z`),
-#                            matches)
-#         } else {
-#           NULL
-#         }
-#       }) %>%
-#       dplyr::bind_rows()
-#   ),
-#   
-#   ## Reduce compound matches to MF feature matches
-#   tar_target(
-#     spiked_urine_feature_matches,
-#     spiked_urine_compound_matches %>% 
-#       select(Feature,Mode,mz,MF,Isotope,Adduct,`PPM error`) %>% 
-#       distinct() %>% 
-#       arrange(MF,Adduct,Isotope) %>% 
-#       group_split(MF) %>% 
-#       map_dfr(~{
-#         if (any(is.na(.x$Isotope))){
-#           return(.x)
-#         } else {
-#           return(NULL)
-#         }
-#       })
-#   ),
-#   
-#   ## Identify correctly assigned features
-#   spiked_urine_correct_assignments = tar_target(
-#     spiked_urine_correct_assignments,
-#     spiked_urine_assignments %>% 
-#       inner_join(spiked_urine_feature_matches %>% 
-#                    select(Feature,MF,Adduct,Isotope), 
-#                  by = c("Feature", 
-#                         "Isotope", 
-#                         "Adduct", 
-#                         "MF"))
-#   ),
-#   
-#   ## Identify assigned PIPs
-#   tar_target(spiked_urine_assigned,
-#              spiked_urine_feature_matches %>% 
-#                inner_join(spiked_urine_assignments %>% 
-#                             select(Feature),
-#                           by = 'Feature')),
-#   
-#   ## Identify unassigned PIPs
-#   tar_target(
-#     spiked_urine_unassigned,
-#     spiked_urine_feature_matches %>% 
-#       anti_join(spiked_urine_assignments %>% 
-#                   select(Feature),
-#                 by = 'Feature')),
-#   
-#   ## Identify unassigned features that had correlations
-#   tar_target(
-#     spiked_urine_unassigned_correlated,
-#     spiked_urine_unassigned %>% 
-#       inner_join(spiked_urine_results_molecular_formula_assignment %>% 
-#                    assignments::correlations() %>% 
-#                    {bind_rows(
-#                      select(.,Feature = Feature1),
-#                      select(.,Feature = Feature2)
-#                    )} %>% 
-#                    distinct(),
-#                  by = 'Feature'
-#       ) 
-#   ),
-#   ## Identify unassigned features that did not have correlations
-#   tar_target(
-#     spiked_urine_unassigned_not_correlated,
-#     spiked_urine_unassigned %>% 
-#       anti_join(spiked_urine_results_molecular_formula_assignment %>% 
-#                   assignments::correlations() %>% 
-#                   {bind_rows(
-#                     select(.,Feature = Feature1),
-#                     select(.,Feature = Feature2)
-#                   )} %>% 
-#                   distinct(),
-#                 by = 'Feature'
-#       ) 
-#   ),
-#   
-#   ## Identify unassigned features were correlated but did not have relationships
-#   tar_target(
-#     spiked_urine_unassigned_without_relationships,
-#     spiked_urine_unassigned_correlated %>% 
-#       anti_join(spiked_urine_results_molecular_formula_assignment %>% 
-#                   assignments::relationships() %>% 
-#                   dplyr::filter(
-#                     is.na(Transformation1),
-#                     is.na(Transformation2)) %>% 
-#                   {bind_rows(
-#                     select(.,Feature = Feature1),
-#                     select(.,Feature = Feature2)
-#                   )} %>% 
-#                   distinct(),
-#                 by = 'Feature')
-#   ),
-#   
-#   
-#   ## Identify unassigned features that had relationships
-#   tar_target(
-#     spiked_urine_unassigned_with_relationships,
-#     spiked_urine_results_molecular_formula_assignment %>% 
-#       assignments::relationships() %>% 
-#       dplyr::filter(
-#         is.na(Transformation1),
-#         is.na(Transformation2),
-#         Feature1 %in% 
-#           spiked_urine_unassigned_correlated$Feature |
-#           Feature2 %in% 
-#           spiked_urine_unassigned_correlated$Feature) %>% 
-#       {bind_rows(
-#         select(.,Feature = Feature1),
-#         select(.,Feature = Feature2)
-#       )} %>% 
-#       distinct() %>% 
-#       dplyr::filter(Feature %in% 
-#                       spiked_urine_unassigned_correlated$Feature)
-#   ),
-#   
-#   ## Identify unassigned features were correlated and had correct relationships 
-#   tar_target(
-#     spiked_urine_unassigned_with_correct_relationships,
-#     spiked_urine_feature_matches %>% 
-#       inner_join(spiked_urine_results_molecular_formula_assignment %>% 
-#                    assignments::relationships() %>% 
-#                    dplyr::filter(
-#                      is.na(Transformation1),
-#                      is.na(Transformation2)) %>% 
-#                    inner_join(spiked_urine_unassigned_correlated %>% 
-#                                 select(Feature,Isotope,Adduct) %>% 
-#                                 distinct(),
-#                               by = c('Feature1' = 'Feature',
-#                                      'Isotope1' = 'Isotope',
-#                                      'Adduct1' = 'Adduct')) %>% 
-#                    inner_join(spiked_urine_unassigned_correlated %>% 
-#                                 select(Feature,Isotope,Adduct) %>% 
-#                                 distinct(),
-#                               by = c('Feature2' = 'Feature',
-#                                      'Isotope2' = 'Isotope',
-#                                      'Adduct2' = 'Adduct')) %>% 
-#                    {bind_rows(
-#                      select(.,
-#                             Feature = Feature1,
-#                             Isotope = Isotope1,
-#                             Adduct = Adduct1),
-#                      select(.,
-#                             Feature = Feature2,
-#                             Isotope = Isotope2,
-#                             Adduct = Adduct2)
-#                    )} %>% 
-#                    distinct(),
-#                  by = c('Feature','Isotope','Adduct')
-#       )
-#   ),
-#   
-#   ## Identify incorrectly assigned features
-#   spiked_urine_incorrect_assignments = tar_target(
-#     spiked_urine_incorrect_assignments,
-#     spiked_urine_assignments %>% 
-#       anti_join(spiked_urine_correct_assignments %>% 
-#                   select(Feature), 
-#                 by = "Feature") %>% 
-#       inner_join(spiked_urine_feature_matches %>% 
-#                    select(Feature), 
-#                  by = "Feature") %>% 
-#       distinct()
-#   ),
-#   
-#   ## Identify correct relationships for the incorrectly assigned features
-#   tar_target(
-#     spiked_urine_incorrect_assigned_correct_relationships,
-#     bind_rows(
-#       spiked_urine_results_molecular_formula_assignment %>% 
-#         assignments::relationships() %>% 
-#         dplyr::filter(is.na(Transformation1),
-#                       is.na(Transformation2)) %>% 
-#         inner_join(spiked_urine_feature_matches %>% 
-#                      select(Feature,Isotope,Adduct),
-#                    by = c('Feature1' = 'Feature',
-#                           'Isotope1' = 'Isotope',
-#                           'Adduct1' = 'Adduct')) %>% 
-#         select(Feature = Feature1,
-#                Isotope = Isotope1,
-#                Adduct = Adduct1),
-#       spiked_urine_results_molecular_formula_assignment %>% 
-#         assignments::relationships() %>% 
-#         dplyr::filter(is.na(Transformation1),
-#                       is.na(Transformation2)) %>% 
-#         inner_join(spiked_urine_feature_matches %>% 
-#                      select(Feature,Isotope,Adduct),
-#                    by = c('Feature2' = 'Feature',
-#                           'Isotope2' = 'Isotope',
-#                           'Adduct2' = 'Adduct'))%>% 
-#         select(Feature = Feature2,
-#                Isotope = Isotope2,
-#                Adduct = Adduct2)
-#     ) %>% 
-#       bind_rows() %>% 
-#       distinct() %>% 
-#       inner_join(spiked_urine_incorrect_assignments %>% 
-#                    select(Feature) %>% 
-#                    distinct(),
-#                  by = 'Feature')
-#   ),
-#   
-#   ## Identify incorrectly assigned features that did not have correct relationships
-#   tar_target(
-#     spiked_urine_incorrect_assigned_incorrect_relationships,
-#     spiked_urine_feature_matches %>% 
-#       inner_join(
-#         bind_rows(
-#           spiked_urine_results_molecular_formula_assignment %>% 
-#             assignments::relationships() %>% 
-#             dplyr::filter(is.na(Transformation1),
-#                           is.na(Transformation2)) %>% 
-#             inner_join(spiked_urine_incorrect_assignments %>% 
-#                          select(Feature) %>% 
-#                          distinct(),
-#                        by = c('Feature1' = 'Feature')) %>% 
-#             select(Feature = Feature1,
-#                    Isotope = Isotope1,
-#                    Adduct = Adduct1),
-#           spiked_urine_results_molecular_formula_assignment %>% 
-#             assignments::relationships() %>% 
-#             dplyr::filter(is.na(Transformation1),
-#                           is.na(Transformation2)) %>% 
-#             inner_join(spiked_urine_incorrect_assignments %>% 
-#                          select(Feature) %>% 
-#                          distinct(),
-#                        by = c('Feature2' = 'Feature'))%>% 
-#             select(Feature = Feature2,
-#                    Isotope = Isotope2,
-#                    Adduct = Adduct2)
-#         ) %>% 
-#           distinct() %>% 
-#           anti_join(spiked_urine_incorrect_assigned_correct_relationships %>% 
-#                       select(Feature) %>% 
-#                       distinct(),
-#                     by = 'Feature') %>% 
-#           select(Feature) %>% 
-#           distinct(),
-#         by = 'Feature')
-#   ),
-#   
-#   ## Identify correct components for the incorrectly assigned features
-#   tar_target(
-#     spiked_urine_incorrect_assigned_correct_components,
-#     spiked_urine_feature_matches %>% 
-#       inner_join(spiked_urine_incorrect_assignments %>% 
-#                    select(Feature),
-#                  by = 'Feature') %>% 
-#       inner_join(spiked_urine_incorrect_assigned_correct_relationships, 
-#                  by = c("Feature", "Isotope", "Adduct")) %>% 
-#       rowwise() %>% 
-#       group_split() %>% 
-#       map_dfr(~{
-#         assignments::featureComponents(
-#           spiked_urine_results_molecular_formula_assignment,
-#           .x$Feature,
-#           type = 'all'
-#         ) %>% 
-#           inner_join(.x %>% 
-#                        select(Feature,MF,Isotope,Adduct),
-#                      by = c('Feature','MF','Isotope','Adduct'))
-#       })
-#   ),
-#   
-#   ## Identify incorrectly assigned features without correct components
-#   tar_target(
-#     spiked_urine_incorrect_assigned_incorrect_components,
-#     spiked_urine_incorrect_assigned_correct_relationships %>%
-#       anti_join(spiked_urine_incorrect_assigned_correct_components %>%
-#                   select(Feature,Isotope,Adduct),
-#                 by = c("Feature", "Isotope", "Adduct"))
-#   ),
-#   
-#   ## Retieved putative compound matches for incorrectly assigned features
-#   spiked_urine_incorrect_assignment_compounds = tar_target(
-#     spiked_urine_incorrect_assignment_compounds,
-#     spiked_urine_results_molecular_formula_assignment %>% 
-#       assignments::assignments() %>% 
-#       dplyr::filter(Feature %in% spiked_urine_feature_matches$Feature) %>% 
-#       dplyr::filter(!(MF %in% {spiked_urine_compound_db %>% 
-#           cheminf::descriptors() %>% 
-#           .$MF})) %>% 
-#       dplyr::select(Feature,`Assigned MF` = MF) %>% 
-#       dplyr::left_join(spiked_urine_feature_matches, 
-#                        by = "Feature")
-#   ),
-#   
-#   ## Identify standard compound MFs that it was possible for the algorithm to assign
-#   tar_target(
-#     spike_urine_standards_MF_assignment_possible,
-#     bind_rows(
-#       spiked_urine_unassigned_with_correct_relationships,
-#       spiked_urine_feature_matches %>% 
-#         inner_join(spiked_urine_incorrect_assigned_correct_relationships, 
-#                    by = c("Feature", "Isotope", "Adduct")),
-#       spiked_urine_correct_assignments
-#     ) %>% 
-#       select(MF) %>% 
-#       distinct()
-#   ),
-#   
-#   ## Plot component solutions for example feature
-#   tar_target(
-#     spiked_urine_feature_solutions_plot,
-#     {
-#       pl <- plotFeatureSolutions(
-#         spiked_urine_results_molecular_formula_assignment,
-#         tibble::tibble(
-#           component = c(72,868,2370),
-#           border = c('red',rep('black',2))
-#         ),
-#         spiked_urine_example_feature,
-#         'A&I1'
-#       ) &
-#         guides(
-#           edge_colour = ggraph::guide_edge_colorbar(
-#             title = 'correlation coefficient',
-#             title.position = 'top',
-#             title.hjust = 0.5,
-#             barheight = 0.75,
-#             barwidth = 8,
-#             frame.colour = 'black',
-#             direction = 'horizontal'
-#           )
-#         )
-#       
-#       legend <- ggpubr::get_legend(pl)
-#       
-#       {pl &
-#           theme(legend.position = 'none')} /
-#         legend +
-#         patchwork::plot_layout(heights = c(6,1))
-#     }
-#   )
-# )
+standards_evaluation_targets <- matrix_info %>%
+  dplyr::rowwise() %>%
+  dplyr::group_split() %>%
+  purrr::map(
+    ~{
+      list(
+        tar_target_raw(
+          paste0(.x$sample,'_features'),
+          rlang::expr(
+            !!rlang::sym(paste0(.x$sample,'_results_molecular_formula_assignment')) %>%
+              assignments::featureData() %>%
+              {
+                tibble::tibble(
+                  Feature = colnames(.)
+                )
+              } %>%
+              dplyr::mutate(
+                Mode = stringr::str_sub(Feature,1,1),
+                mz = stringr::str_remove_all(Feature,'[:alpha:]') %>%
+                  as.numeric()
+              )
+          )
+        ),
+
+        tar_target_raw(
+          paste0(.x$sample,'_compound_matches'),
+          rlang::expr(
+            standards_compound_PIPs %>%
+              dplyr::rowwise() %>%
+              dplyr::group_split() %>%
+              purrr::map_dfr(~{
+                ppm_range <- mzAnnotation::ppmRange(.x$`m/z`,
+                                                    assignments::ppm(assignment_parameters))
+
+                matches <- !!rlang::sym(paste0(.x$sample,'_features')) %>%
+                  dplyr::filter(Mode == .x$Mode,
+                                mz > ppm_range$lower,
+                                mz < ppm_range$upper) %>%
+                  dplyr::mutate(`PPM error` = mzAnnotation::ppmError(mz,
+                                                                     .x$`m/z`) %>%
+                                  abs())
+
+                if(nrow(matches) > 0){
+                  dplyr::bind_cols(dplyr::select(.x,
+                                                 ID:Adduct,Isotope,
+                                                 `Theoretical m/z` = `m/z`),
+                                   matches)
+                } else {
+                  NULL
+                }
+              }) %>%
+              dplyr::bind_rows()
+          )
+        ),
+
+        tar_target_raw(
+          paste0(.x$sample,'_feature_matches'),
+          rlang::expr(
+            !!rlang::sym(paste0(.x$sample,'_compound_matches')) %>%
+              dplyr::select(
+                Feature,
+                Mode,mz,
+                MF,
+                Isotope,
+                Adduct,
+                `PPM error`) %>%
+              dplyr::distinct() %>%
+              dplyr::arrange(MF,Adduct,Isotope) %>%
+              dplyr::group_split(MF) %>%
+              purrr::map_dfr(~{
+                if (any(is.na(.x$Isotope))){
+                  return(.x)
+                } else {
+                  return(NULL)
+                }
+              })
+          )
+        ),
+
+        tar_target_raw(
+          paste0(.x$sample,'_correlations'),
+          rlang::expr(
+            !!rlang::sym(paste0(.x$sample,'_results_molecular_formula_assignment')) %>%
+              assignments::correlations() %>%
+              dplyr::select(
+                contains('Feature')
+              ) %>%
+              {
+                dplyr::bind_rows(
+                  dplyr::select(.,Feature = Feature1),
+                  dplyr::select(.,Feature = Feature2),
+                ) %>%
+                  dplyr::distinct()
+              } %>%
+              dplyr::mutate(
+                correlations = TRUE
+              )
+          )
+        ),
+
+        tar_target_raw(
+          paste0(.x$sample,'_relationships'),
+          rlang::expr(
+            !!rlang::sym(paste0(.x$sample,'_results_molecular_formula_assignment')) %>%
+              assignments::relationships() %>%
+              dplyr::filter(
+                dplyr::if_all(
+                  dplyr::contains('Transformation'),
+                  ~is.na(.x)
+                ),
+                coefficient > 0
+              ) %>%
+              dplyr::select(
+                contains(
+                  c(
+                    'Feature',
+                    'Adduct',
+                    'Isotope')
+                )
+              ) %>%
+              {
+                dplyr::bind_rows(
+                  dplyr::select(
+                    .,
+                    Feature = Feature1,
+                    Adduct = Adduct1,
+                    Isotope = Isotope1
+                  ),
+                  dplyr::select(
+                    .,
+                    Feature = Feature2,
+                    Adduct = Adduct2,
+                    Isotope = Isotope2
+                  ),
+                ) %>%
+                  dplyr::distinct()
+              } %>%
+              dplyr::mutate(
+                relationships = TRUE
+              )
+          )
+        ),
+
+        tar_target_raw(
+          paste0(.x$sample,'_assignments'),
+          rlang::expr(
+            !!rlang::sym(paste0(.x$sample,'_results_molecular_formula_assignment')) %>%
+              assignments::assignments() 
+          )
+        ),
+        
+        tar_target_raw(
+          paste0(.x$sample,'_correct_assignments'),
+          rlang::expr(
+            !!rlang::sym(paste0(.x$sample,'_assignments')) %>%
+              inner_join(!!rlang::sym(paste0(.x$sample,'_feature_matches')) %>% 
+                           select(Feature,MF,Adduct,Isotope), 
+                         by = c("Feature", 
+                                "Isotope", 
+                                "Adduct", 
+                                "MF"))
+          )
+        ),
+        
+        tar_target_raw(
+          paste0(.x$sample,'_assignments_AI'),
+          rlang::expr(
+            !!rlang::sym(paste0(.x$sample,'_assignments')) %>%
+              dplyr::filter(
+                !stringr::str_detect(
+                  Iteration,
+                  'T'
+                )
+              ) %>%
+              dplyr::select(
+                Feature,
+                Adduct,
+                Isotope,
+                MF
+              )
+          )
+        ),
+
+        tar_target_raw(
+          paste0(.x$sample,'_assignment_outcomes'),
+          rlang::expr(
+            {
+              assignment_outcomes <- !!rlang::sym(paste0(.x$sample,'_feature_matches')) %>%
+                dplyr::select(
+                  MF,
+                  Adduct,
+                  Isotope,
+                  Feature
+                ) %>%
+                dplyr::distinct() %>%
+                dplyr::left_join(
+                  !!rlang::sym(paste0(.x$sample,'_correlations')),
+                  by = 'Feature'
+                ) %>%
+                dplyr::left_join(
+                  !!rlang::sym(paste0(.x$sample,'_relationships')),
+                  by = c(
+                    'Feature',
+                    'Adduct',
+                    'Isotope'
+                  )
+                ) %>%
+                dplyr::left_join(
+                  !!rlang::sym(paste0(.x$sample,'_assignments_AI')) %>%
+                    dplyr::select(
+                      Feature
+                    ) %>%
+                    dplyr::mutate(
+                      assigned = TRUE
+                    ),
+                  by = c(
+                    'Feature'
+                  )
+                ) %>%
+                dplyr::left_join(
+                  !!rlang::sym(paste0(.x$sample,'_assignments_AI')) %>%
+                    dplyr::select(
+                      Feature,
+                      Isotope,
+                      Adduct
+                    ) %>%
+                    dplyr::mutate(
+                      matching_adduct = TRUE
+                    ),
+                  by = c(
+                    'Feature',
+                    'Isotope',
+                    'Adduct'
+                  )
+                ) %>%
+                dplyr::left_join(
+                  !!rlang::sym(paste0(.x$sample,'_assignments_AI')) %>%
+                    dplyr::mutate(
+                      matching_assignment = TRUE
+                    ),
+                  by = c(
+                    'Feature',
+                    'Adduct',
+                    'Isotope',
+                    'MF'
+                  )
+                )
+
+              mf_top_ranked <- assignment_outcomes %>%
+                dplyr::filter(
+                  dplyr::if_all(
+                    correlations:matching_adduct,
+                    ~.x == TRUE)
+                ) %>%
+                dplyr::mutate(
+                  `m/z` = Feature %>%
+                    stringr::str_remove_all(
+                      '[:alpha:]'
+                    ) %>%
+                    as.numeric()
+                ) %>%
+                dplyr::rowwise() %>%
+                dplyr::group_split() %>%
+                furrr::future_map_dfr(
+                  ~{
+                    mfs <- mzAnnotation::ipMF(
+                      mz = .x$`m/z`,
+                      adduct = .x$Adduct,
+                      isotope = .x$Isotope,
+                      ppm = assignments::ppm(assignment_parameters)
+                    ) %>%
+                      dplyr::slice(1:3)
+
+                    .x %>%
+                      dplyr::mutate(
+                        mf_top_3 = MF %in% mfs$MF
+                      )
+                  },
+                  seed = TRUE
+                ) %>%
+                dplyr::select(
+                  MF:Feature,
+                  mf_top_3
+                )
+
+              assignment_outcomes %>%
+                dplyr::left_join(
+                  mf_top_ranked,
+                  by = c(
+                    'MF',
+                    'Adduct',
+                    'Isotope',
+                    'Feature'
+                  )
+                ) %>%
+                dplyr::relocate(
+                  mf_top_3,
+                  .before = matching_assignment
+                ) %>%
+                dplyr::mutate(
+                  dplyr::across(
+                    correlations:matching_assignment,
+                    ~replace(
+                      .x,
+                      is.na(.x),
+                      FALSE
+                    )
+                  )
+                )
+            }
+          )
+        ),
+
+        tar_target_raw(
+          paste0(.x$sample,'_assignment_outcomes_non_iso'),
+          rlang::expr(
+            !!rlang::sym(paste0(.x$sample,'_assignment_outcomes')) %>%
+              dplyr::filter(
+                is.na(Isotope),
+                !Adduct %in% c(
+                  '[M+Cl37]1-',
+                  '[M+K41]1+'
+                )
+              )
+          )
+        ),
+
+        tar_target_raw(
+          paste0(.x$sample,'_assignment_outcomes_summary'),
+          rlang::expr(
+            !!rlang::sym(paste0(.x$sample,'_assignment_outcomes_non_iso')) %>%
+              dplyr::count(
+                correlations,
+                relationships,
+                assigned,
+                matching_adduct,
+                mf_top_3,
+                matching_assignment
+              ) %>%
+              dplyr::mutate(
+                `Assignment outcome` = factor(
+                  !!assignment_outcomes[[.x$sample]],
+                  levels = c(
+                    'No correlations',
+                    'No relevant relationships',
+                    'Eliminated, unassigned',
+                    'Alternative adduct, alternative MF',
+                    'Matching adduct, MF outside top 3',
+                    'Matching adduct, alternative MF',
+                    'Matching adduct, matching MF'
+                  )
+                )
+              ) %>%
+              dplyr::group_by(
+                `Assignment outcome`
+              ) %>%
+              dplyr::summarise(
+                n = sum(n)
+              ) %>%
+              dplyr::mutate(
+                `%` = n / sum(n) * 100
+              ) %>%
+              dplyr::rename(
+                `# IPs` = n
+              )
+          )
+        )
+      )
+    }
+  )
+
+standards_figures_targets <- list(
+  ## Plot component solutions for example feature
+  tar_target(
+    spiked_urine_feature_solutions_plot,
+    {
+      pl <- plotFeatureSolutions(
+        spiked_urine_results_molecular_formula_assignment,
+        tibble::tibble(
+          component = c(43,423,1316),
+          border = c('red',rep('black',2))
+        ),
+        spiked_urine_example_feature,
+        'A&I1'
+      ) &
+        guides(
+          edge_colour = ggraph::guide_edge_colorbar(
+            title = 'correlation coefficient',
+            title.position = 'top',
+            title.hjust = 0.5,
+            barheight = 0.75,
+            barwidth = 8,
+            frame.colour = 'black',
+            direction = 'horizontal'
+          )
+        )
+
+      legend <- ggpubr::get_legend(pl)
+
+      {pl &
+          theme(legend.position = 'none')} /
+        legend +
+        patchwork::plot_layout(heights = c(6,1))
+    }
+  ),
+  
+  ## Match assignments to human specific KEGG compounds
+  tar_KEGG_matches(spiked_urine,
+                   KEGG_IRs_human)
+)
+
+standards_targets <- list(
+  standards_processing_targets,
+  standards_compound_targets,
+  standards_evaluation_targets,
+  standards_figures_targets
+)

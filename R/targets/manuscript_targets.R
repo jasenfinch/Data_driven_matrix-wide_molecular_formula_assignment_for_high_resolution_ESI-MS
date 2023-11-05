@@ -33,7 +33,7 @@ manuscript_targets <- list(
   ## Supplementary table S1 of spiked compounds
   tarchetypes::tar_file(
     table_s1,
-    spiked_urine_compound_info %>% 
+    standards_compound_info %>% 
       dplyr::mutate(MF = SMILES %>% 
                       cheminf::chemicalDescriptors() %>% 
                       .$MF) %>% 
