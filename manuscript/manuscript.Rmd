@@ -465,7 +465,7 @@ standards_compound_outcomes %>%
       rep('l',1),
       rep('r',2)
     ),
-    caption = 'Assignments results frequencies for the 64 unique molecular formulas of the chemical standards in the standards mix and spiked into human urine.'
+    caption = 'Molecular formula assignment results frequencies for the 64 unique molecular formulas of the chemical standards in the standards mix and spiked into human urine.'
   ) %>%
   kableExtra::kable_styling(
     latex_options = "HOLD_position"
