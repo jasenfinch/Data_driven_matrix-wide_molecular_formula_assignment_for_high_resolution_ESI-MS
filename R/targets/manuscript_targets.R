@@ -44,7 +44,7 @@ manuscript_targets <- list(
   
   ## Supplementary table S5 of all assignments
   tarchetypes::tar_file(
-    table_s6,
+    table_s7,
     bind_rows(
       list(
         `Human_urine_FIE-HRMS` = spiked_urine_results_molecular_formula_assignment %>% 
@@ -105,7 +105,7 @@ manuscript_targets <- list(
   
   ## Supplementary table S6 directly matched chemical standard ionisation products
   tarchetypes::tar_file(
-    table_s7,
+    table_s8,
     spiked_urine_feature_matches %>% 
       select(MF,
              Isotope,
@@ -120,7 +120,7 @@ manuscript_targets <- list(
   
   ## Supplementary table S7 assigned chemical standards
   tarchetypes::tar_file(
-    table_s8,
+    table_s9,
     spiked_urine_correct_assignments %>% 
       select(MF,
              Isotope,
@@ -148,9 +148,9 @@ manuscript_targets <- list(
           c(supplementary_methods[1],
             supplementary_tables[1],
             table_s1,
-            table_s6,
             table_s7,
-            table_s8),
+            table_s8,
+            table_s9),
           flags = '-r9Xj')
       
       zipfile

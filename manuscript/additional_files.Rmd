@@ -7,13 +7,13 @@ Additional file 2.pdf - Supplementary materials and methods -
 Further details outlining the materials and methods used in this article. 
 
 Additional file 3.pdf - Supplementary tables -
-Supplementary tables S2, S3, S4 and S5 showing adduct, isotopic, transformation and R package benchmarking information respectively.
+Supplementary tables S2, S3, S4, S5, S6 showing adduct, isotopic, transformation, R package benchmarking information and a summary of the molecular formula assignment results for the example sample matrices respectively.
 
-Additional file 4.csv - Table S6 -
+Additional file 4.csv - Table S7 -
 The molecular formula assignments for *m/z* across all experimental matrices along with any match KEGG compound IDs.
 
-Additional file 5.csv Table S7 -
+Additional file 5.csv Table S8 -
 The *m/z* features directly matched to predicted ionisation products of the spiked chemical compounds in urine.
 
-Additional file 6.csv Table S8 -
+Additional file 6.csv Table S9 -
 The *m/z* features assigned to spiked chemical compounds in urine.
