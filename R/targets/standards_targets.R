@@ -726,7 +726,7 @@ standards_figures_targets <- list(
           dplyr::distinct() %>% 
           dplyr::count(sample) %>% 
           dplyr::rename(
-            `Correlated` = n
+            `Correlations obtained` = n
           ),
         by = 'sample'
       ) %>% 
@@ -789,8 +789,7 @@ standards_figures_targets <- list(
           outcome,
           levels = c(
             'Matched to m/z features',
-            'Correlated',
-            'Relevant relationships',
+            'Correlations obtained',
             'Assigned during A&I assignment step',
             'Assigned during T assignment step',
             'Assigned'

@@ -367,7 +367,109 @@ A total of `r brachy_shared_MFs` molecular formulas were assigned in both the FI
 
 \linespread{1}
 
-```{r assignment-results}
+```{r assignment-evaluations}
+tar_load(assignment_outcomes_summary)
+
+assignment_outcomes_total <- assignment_outcomes_summary %>% 
+  dplyr::summarise(
+    standards = sum(standards),
+    spiked_urine = sum(spiked_urine)
+  ) %>% 
+  dplyr::mutate(
+    ` ` = 'Total'
+  )
+
+assignment_outcomes_summary %>% 
+  dplyr::bind_rows(
+    assignment_outcomes_total
+  ) %>% 
+  dplyr::relocate(
+    ` `,
+    .before = dplyr::everything()
+  ) %>% 
+  dplyr::relocate(
+    spiked_urine,
+    .after = dplyr::everything()
+  ) %>% 
+  dplyr::mutate(
+    `Assignment outcome` = as.character(
+      `Assignment outcome`
+    ),
+    dplyr::across(
+      dplyr::everything(),
+      ~replace(
+        .x,
+        is.na(.x),
+        ' '
+      )
+    )
+  ) %>%
+  dplyr::rename(
+    `Spiked urine` = spiked_urine,
+    `Standards mix` = standards
+  ) %>% 
+  kableExtra::kbl(
+    format = 'latex',
+    col.names = c('','','Standards mix','Spiked urine'),
+    booktabs = TRUE,
+    linesep = '',
+    align = c(
+      rep('l',2),
+      rep('r',2)
+    ),
+    caption = 'The frequencies of molecular formula (MF) assignment outcomes for theoretical, non-isotopic ionisation products that were matched to \\textit{m/z} features in the chemical standards mix and the same standards mix spiked into human urine. These frequencies include only outcomes from the adduct and isotopic assignment iterations and highlight the perfomance of the MF and graphical component selection approaches.'
+  ) %>% 
+  kableExtra::kable_styling(
+    latex_options = "HOLD_position"
+  ) %>% 
+  kableExtra::collapse_rows(
+    1,
+    latex_hline = 'major'
+  )
+```
+
+\linespread{2}
+
+\linespread{1}
+
+```{r compound-evaluations}
+tar_load(standards_compound_outcomes)
+
+standards_compound_outcomes %>%
+  dplyr::mutate(
+    outcome = outcome %>%
+      stringr::str_replace_all(
+        'm/z',
+        '\\\\textit{m/z}'
+      ) %>% 
+      stringr::str_replace_all(
+        '&',
+        '\\\\&'
+      )
+  ) %>%
+  dplyr::relocate(
+    spiked_urine,
+    .after = dplyr::everything()
+  ) %>%
+  dplyr::rename(
+    ` ` = outcome,
+    `Standards mix` = standards,
+    `Spiked urine` = spiked_urine
+  ) %>%
+  kableExtra::kable(
+    format = 'latex',
+    booktabs = TRUE,
+    escape = FALSE,
+    linesep = '',
+    align = c(
+      rep('l',1),
+      rep('r',2)
+    ),
+    caption = 'Assignments results frequencies for the 64 unique molecular formulas of the chemical standards in the standards mix and spiked into human urine.'
+  ) %>%
+  kableExtra::kable_styling(
+    latex_options = "HOLD_position"
+  )
 ```
 
 \linespread{2}
