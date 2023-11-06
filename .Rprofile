@@ -1,6 +1,6 @@
 source("renv/activate.R")
 
-renv::restore(prompt = FALSE)
+# renv::restore(prompt = FALSE)
 
 source("R/utils.R")
 
