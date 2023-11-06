@@ -13,7 +13,7 @@ Additional file 4.csv - Table S7 -
 The molecular formula assignments for *m/z* across all experimental matrices along with any match KEGG compound IDs.
 
 Additional file 5.csv Table S8 -
-The *m/z* features directly matched to predicted ionisation products of the spiked chemical compounds in urine.
+The *m/z* features directly matched to theoretical ionisation products of the chemical standards in the standards mixed and spiked urine.
 
 Additional file 6.csv Table S9 -
-The *m/z* features assigned to spiked chemical compounds in urine.
+The *m/z* features assigned to chemical standards in the standards mix and spiked urine.

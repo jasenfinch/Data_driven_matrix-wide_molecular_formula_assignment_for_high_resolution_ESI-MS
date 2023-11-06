@@ -47,6 +47,8 @@ manuscript_targets <- list(
     table_s7,
     bind_rows(
       list(
+        `NA_Standards mix_FIE-HRMS` = standards_results_molecular_formula_assignment %>% 
+          assignments::assignments(),
         `Human_urine_FIE-HRMS` = spiked_urine_results_molecular_formula_assignment %>% 
           assignments::assignments(),
         `Brachypodium distachyon_leaf_FIE-HRMS` = brachy_FIE_HRMS_results_molecular_formula_assignment %>% 
@@ -62,6 +64,13 @@ manuscript_targets <- list(
           'Matrix',
           'Technique'),
         sep = '_'
+      ) %>% 
+      dplyr::mutate(
+        Organism = Organism %>% 
+          replace(
+            Organism == 'NA',
+            NA
+          )
       ) %>% 
       left_join(
         bind_rows(
@@ -106,13 +115,22 @@ manuscript_targets <- list(
   ## Supplementary table S6 directly matched chemical standard ionisation products
   tarchetypes::tar_file(
     table_s8,
-    spiked_urine_feature_matches %>% 
-      select(MF,
-             Isotope,
-             Adduct,
-             `m/z` = mz,
-             `Ionisation mode` = Mode,
-             `PPM error`) %>% 
+    list(
+      `Standards mix` = standards_feature_matches,
+      `Spiked urine` = spiked_urine_feature_matches
+    ) %>% 
+      dplyr::bind_rows(
+        .id = 'Matrix'
+      ) %>% 
+      select(
+        Matrix,
+        MF,
+        Isotope,
+        Adduct,
+        `m/z` = mz,
+        `Ionisation mode` = Mode,
+        `PPM error`
+      ) %>% 
       jfmisc::exportCSV(
         file = 'exports/manuscript/supplementary_materials/Additional file 5.csv'
       )
@@ -121,13 +139,22 @@ manuscript_targets <- list(
   ## Supplementary table S7 assigned chemical standards
   tarchetypes::tar_file(
     table_s9,
-    spiked_urine_correct_assignments %>% 
-      select(MF,
-             Isotope,
-             Adduct,
-             `m/z` = `Measured m/z`,
-             `Ionisation mode` = Mode,
-             `PPM error`) %>% 
+    list(
+      `Standards mix` = standards_correct_assignments,
+      `Spiked urine` = spiked_urine_correct_assignments
+    ) %>%
+      dplyr::bind_rows(
+        .id = 'Matrix'
+      ) %>% 
+      select(
+        Matrix,
+        MF,
+        Isotope,
+        Adduct,
+        `m/z` = `Measured m/z`,
+        `Ionisation mode` = Mode,
+        `PPM error`
+      ) %>% 
       jfmisc::exportCSV(
         file = 'exports/manuscript/supplementary_materials/Additional file 6.csv'
       )
