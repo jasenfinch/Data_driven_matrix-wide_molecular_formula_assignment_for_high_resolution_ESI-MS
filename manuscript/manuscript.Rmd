@@ -260,8 +260,8 @@ Each iteration was performed as for the previous adduct and isotopic assignment 
 tar_load(KEGG_compounds_valid_MFs)
 ```
 
-Features matching to possible ionisation products of the spiked urine compounds were identified by first applying the MZedDB ionisation 'rules' and calculating their theoretical *m/z* for each of the adducts specified in Section \@ref(relationships) [@draper2009].
-The calculated *m/z* were then matched to the spiked urine features using a search range of $\pm$ `r search_ppm` ppm.
+Features matching to possible ionisation products of the chemical standards were identified by first applying the MZedDB ionisation 'rules' and calculating their theoretical *m/z* for each of the adducts specified in Section \@ref(relationships) [@draper2009].
+The calculated *m/z* were then matched to the *m/z* features in the standards mix and spiked urine data using a search range of $\pm$ `r search_ppm` ppm.
 
 The molecular formulas and monoisotopic masses for compound entries in the KEGG compound database were accessed using the R package *KEGGREST* v`r packageVersion('KEGGREST')` [@kanehisa2000;@tenenbaum2021].
 For the assessments of molecular formula selection success, only uncharged molecular formulas containing the elements C, H, N, O, P, or S and a monoisotopic mass below 1000 amu were retained.
