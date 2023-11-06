@@ -41,28 +41,28 @@ Some annotation approaches are available; however, these are primarily for liqui
 ## Results {-}
 
 ```{r assignment-summary}
-tar_load(assignment_results)
-tar_load(assignment_matches)
-tar_load(spike_urine_standards_MF_assignment_possible)
-tar_load(spiked_urine_correct_assignments)
-
-total_assigned <- round(sum(assignment_results$n_assignments) / 
-                          sum(assignment_results$n_features) * 100,1)
-total_mfs <- sum(assignment_results$n_MFs)
-total_kegg <- sum(assignment_matches$KEGG_compound_matches)
-
-spiked_urine_possible <- nrow(spike_urine_standards_MF_assignment_possible)
-spiked_urine_correct_percent <- spiked_urine_correct_assignments$MF %>% 
-  unique() %>% 
-  length() %>% 
-  {. / spiked_urine_possible * 100} %>% 
-  round(digits = 1)
+# tar_load(assignment_results)
+# tar_load(assignment_matches)
+# tar_load(spike_urine_standards_MF_assignment_possible)
+# tar_load(spiked_urine_correct_assignments)
+# 
+# total_assigned <- round(sum(assignment_results$n_assignments) / 
+#                           sum(assignment_results$n_features) * 100,1)
+# total_mfs <- sum(assignment_results$n_MFs)
+# total_kegg <- sum(assignment_matches$KEGG_compound_matches)
+# 
+# spiked_urine_possible <- nrow(spike_urine_standards_MF_assignment_possible)
+# spiked_urine_correct_percent <- spiked_urine_correct_assignments$MF %>% 
+#   unique() %>% 
+#   length() %>% 
+#   {. / spiked_urine_possible * 100} %>% 
+#   round(digits = 1)
 ```
 
 We present a data-driven ensemble approach for the ‘first pass’ automated assignment of molecular formulas to mass spectra acquired from high-resolution electrospray ionisation mass spectrometry (ESI-MS). This is primarily intended for metabolomics experiment data using non-targeted metabolome fingerprinting and LC-MS profiling.
 The approach incorporates the use of *m/z* correlation networks, molecular formula generation and selection as well as graphically based component plausibility selection to assign molecular formulas to *m/z* features.
 The R package *assignments* was developed as a user-friendly implementation of the approach and is freely available from https://github.com/aberHRML/assignments.
-The approach was tested in human urine samples spiked with known chemical standards and a data set comparing leaf tissue samples of different ecotypes of the model grass species *Brachypodium distachyon*. Across the three test matrices, `r total_assigned`% of the m/z features were assigned a molecular formula giving a total of `r total_mfs` molecular formulas and matching to `r total_kegg` compounds in the KEGG compound database. Of the `r spiked_urine_possible` spiked chemical standards that it was possible to assign in the human urine samples, the approach was able to assign m/z features to `r spiked_urine_correct_percent`% of these.
+The approach was tested in human urine samples spiked with known chemical standards and a data set comparing leaf tissue samples of different ecotypes of the model grass species *Brachypodium distachyon*. Across the three test matrices, `r #total_assigned`% of the m/z features were assigned a molecular formula giving a total of `r #total_mfs` molecular formulas and matching to `r #total_kegg` compounds in the KEGG compound database. Of the `r #spiked_urine_possible` spiked chemical standards that it was possible to assign in the human urine samples, the approach was able to assign m/z features to `r #spiked_urine_correct_percent`% of these.
 
 ## Conclusions {-}
 
@@ -107,16 +107,16 @@ This is accompanied by the development of the R package *assignments* as an impl
 ## Biological sample preparation and ESI-MS analysis
 
 ```{r chemical-standards}
-tar_load(spiked_urine_compound_info)
+tar_load(standards_compound_info)
 
-spiked_urine_compound_MFs <- spiked_urine_compound_info %>% 
+standards_compound_MFs <- standards_compound_info %>% 
   select(MF) %>% 
   distinct() %>% 
   nrow()
 ```
 
 Two example sample matrices were used for assessing the molecular formula assignment approach. 
-The first was human urine purchased from BioIVT (Catalog# HUMANURINEPNN, Lot# 0393918) and spiked with a diverse mixture of `r nrow(spiked_urine_compound_info)` chemical standards from a previously validated assay that included `r spiked_urine_compound_MFs` unique molecular formulas [@beckmann2020].
+The first was human urine purchased from BioIVT (Catalog# HUMANURINEPNN, Lot# 0393918) and spiked with a diverse mixture of `r nrow(standards_compound_info)` chemical standards from a previously validated assay that included `r standards_compound_MFs` unique molecular formulas [@beckmann2020].
 A full list of the names and InChI chemical identifiers of the spiked chemical standards can be found in Additional file 1.
 The second was healthy leaf tissue samples collected from four ecotypes of the model grass species *Brachypodium distachyon* using the method described in @parker2008.
 Further details of the sample collection and extraction are described in the Additional file 2.
@@ -260,7 +260,7 @@ tar_load(KEGG_compounds_valid_MFs)
 ```
 
 Features matching to possible ionisation products of the spiked urine compounds were identified by first applying the MZedDB ionisation 'rules' and calculating their theoretical *m/z* for each of the adducts specified in Section \@ref(relationships) [@draper2009].
-The calculated *m/z* were then matched to the spiked urine features using a search range of $\pm$ `r spiked_urine_search_ppm` ppm.
+The calculated *m/z* were then matched to the spiked urine features using a search range of $\pm$ `r search_ppm` ppm.
 
 The molecular formulas and monoisotopic masses for compound entries in the KEGG compound database were accessed using the R package *KEGGREST* v`r packageVersion('KEGGREST')` [@kanehisa2000;@tenenbaum2021].
 For the assessments of molecular formula selection success, only uncharged molecular formulas containing the elements C, H, N, O, P, or S and a monoisotopic mass below 1000 amu were retained.
@@ -292,11 +292,11 @@ With the use of high-performance computing resources with greater than 32 CPU wo
 ## Molecular formula assignment success {#success}
 
 ```{r assignment-success}
-tar_load(spiked_urine_compound_PIPs)
+tar_load(standards_compound_PIPs)
 tar_load(spiked_urine_feature_matches)
-tar_load(spiked_urine_unassigned)
-tar_load(spiked_urine_assigned)
-tar_load(spiked_urine_incorrect_assignments)
+# tar_load(spiked_urine_unassigned)
+# tar_load(spiked_urine_assigned)
+# tar_load(spiked_urine_incorrect_assignments)
 
 brachy_shared_MFs <- tar_read(brachy_FIE_HRMS_results_molecular_formula_assignment) %>% 
   assignments::assignments() %>% 
@@ -325,38 +325,38 @@ negative_mode_adducts <- brachy_FIE_HRMS_parameters_molecular_formula_assignment
   .$n %>% 
   length()
   
-spiked_urine_MF_PIPs <- spiked_urine_compound_PIPs %>% 
+spiked_urine_MF_PIPs <- standards_compound_PIPs %>% 
   select(MF,Adduct,Isotope) %>% 
   distinct()
 
 spiked_urine_feature_matches_MF_n <- spiked_urine_feature_matches$MF %>% 
   unique() %>% length()
 
-percent_unassigned <- {nrow(spiked_urine_unassigned) / 
-    nrow(spiked_urine_feature_matches) * 100} %>% 
-  signif(digits = 3)
+# percent_unassigned <- {nrow(spiked_urine_unassigned) / 
+#     nrow(spiked_urine_feature_matches) * 100} %>% 
+#   signif(digits = 3)
 
-spiked_urine_unassigned_MF_n <- spiked_urine_unassigned %>% 
-  anti_join(
-    spiked_urine_assigned %>% 
-      select(MF) %>% 
-      distinct(), 
-    by = 'MF') %>% 
-  .$MF %>% 
-  unique() %>% 
-  length()
+# spiked_urine_unassigned_MF_n <- spiked_urine_unassigned %>% 
+#   anti_join(
+#     spiked_urine_assigned %>% 
+#       select(MF) %>% 
+#       distinct(), 
+#     by = 'MF') %>% 
+#   .$MF %>% 
+#   unique() %>% 
+#   length()
 
-spiked_urine_correct_assignments_MF_n <- spiked_urine_correct_assignments %>%
-  .$MF %>% 
-  unique() %>% 
-  length()
+# spiked_urine_correct_assignments_MF_n <- spiked_urine_correct_assignments %>%
+#   .$MF %>% 
+#   unique() %>% 
+#   length()
 
-spike_urine_standards_MF_assignment_impossible_n <- spiked_urine_feature_matches_MF_n -
-  nrow(spike_urine_standards_MF_assignment_possible)
+# spike_urine_standards_MF_assignment_impossible_n <- spiked_urine_feature_matches_MF_n -
+#   nrow(spike_urine_standards_MF_assignment_possible)
 
-percent_standards_MF_assigned <- {spiked_urine_correct_assignments_MF_n / 
-  nrow(spike_urine_standards_MF_assignment_possible) * 100} %>% 
-  signif(digits = 3)
+# percent_standards_MF_assigned <- {spiked_urine_correct_assignments_MF_n / 
+#   nrow(spike_urine_standards_MF_assignment_possible) * 100} %>% 
+#   signif(digits = 3)
 ```
 
 An overview of the molecular formula assignments made in both the urine and *B. distachyon* FIE-HRMS matrices is provided in Table \@ref(tab:assignment-results), which shows that similar proportions of *m/z* features were assigned molecular formulas.
@@ -379,16 +379,16 @@ The assignments for all the matrices along with the matched KEGG compound IDs ar
 
 To assess the assignments in the example urine matrix with respect to the spiked chemical standards, the predicted ionisation products were first identified by directly matching these to the observed *m/z*.
 Based on the `r positive_mode_adducts + negative_mode_adducts` adducts and four isotopic rules specified, there were `r nrow(spiked_urine_MF_PIPs)` predicted ionisation product *m/z* for these chemical standards.
-A total of `r nrow(spiked_urine_feature_matches)` of these ionisation products could be directly matched to the observed *m/z* features which included `r spiked_urine_feature_matches_MF_n` of the `r spiked_urine_compound_MFs` unique molecular formulas of the spiked chemical standards. 
+A total of `r nrow(spiked_urine_feature_matches)` of these ionisation products could be directly matched to the observed *m/z* features which included `r spiked_urine_feature_matches_MF_n` of the `r standards_compound_MFs` unique molecular formulas of the spiked chemical standards. 
 These directly matched *m/z* features are provided in Additional file 5.
-For `r nrow(spiked_urine_unassigned)` (`r percent_unassigned`%) of these matched *m/z* features, no molecular formula was assigned by the approach, which included `r spiked_urine_unassigned_MF_n` of the molecular formulas of the spiked chemical standards.
-However, `r nrow(spiked_urine_assigned)` of the matched features were assigned a molecular formula with `r nrow(spiked_urine_correct_assignments)` of these corresponding to one of the spiked compound ionisation products. This included `r spiked_urine_correct_assignments_MF_n` of the spiked chemical standards molecular formulas (Table \@ref(tab:assignment-results)).
+For `r #nrow(spiked_urine_unassigned)` (`r #percent_unassigned`%) of these matched *m/z* features, no molecular formula was assigned by the approach, which included `r #spiked_urine_unassigned_MF_n` of the molecular formulas of the spiked chemical standards.
+However, `r #nrow(spiked_urine_assigned)` of the matched features were assigned a molecular formula with `r #nrow(spiked_urine_correct_assignments)` of these corresponding to one of the spiked compound ionisation products. This included `r #spiked_urine_correct_assignments_MF_n` of the spiked chemical standards molecular formulas (Table \@ref(tab:assignment-results)).
 The *m/z* features assigned to molecular formulas corresponding to the spiked chemical standards are provided in Additional file 6. 
 
-The remaining `r nrow(spiked_urine_incorrect_assignments)` matched *m/z* features were assigned alternative molecular formula ionisation products.
+The remaining `r #nrow(spiked_urine_incorrect_assignments)` matched *m/z* features were assigned alternative molecular formula ionisation products.
 The *m/z* of the predicted ionisation features that it was not possible to assign molecular formulas were as a result of either not being correlated with other *m/z* features that corresponded to a correct adduct or isotope mass difference or whose subgraph components were not selected, with more plausible solutions instead selected based on the correlation network. 
 
-Accounting for the `r spike_urine_standards_MF_assignment_impossible_n` chemical standards that were not assigned due to a lack of relevant correlated mass relationships, the algorithm was able to assign molecular formulas to features corresponding to `r percent_standards_MF_assigned`% of the `r nrow(spike_urine_standards_MF_assignment_possible)` possible chemical standards.
+Accounting for the `r #spike_urine_standards_MF_assignment_impossible_n` chemical standards that were not assigned due to a lack of relevant correlated mass relationships, the algorithm was able to assign molecular formulas to features corresponding to `r #percent_standards_MF_assigned`% of the `r #nrow(spike_urine_standards_MF_assignment_possible)` possible chemical standards.
 This highlights the difficulty in annotating these complex biological mixtures containing hundreds of compounds, which can create many thousands of possible ionisation products.
 Interference in correlations due to the presence of isobaric compounds and MS instrument noise can weaken correlations between features, particularly in those with low abundance.
 
