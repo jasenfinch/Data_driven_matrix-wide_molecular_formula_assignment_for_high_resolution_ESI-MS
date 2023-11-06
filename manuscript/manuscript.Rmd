@@ -115,10 +115,11 @@ standards_compound_MFs <- standards_compound_info %>%
   nrow()
 ```
 
-Two example sample matrices were used for assessing the molecular formula assignment approach. 
-The first was human urine purchased from BioIVT (Catalog# HUMANURINEPNN, Lot# 0393918) and spiked with a diverse mixture of `r nrow(standards_compound_info)` chemical standards from a previously validated assay that included `r standards_compound_MFs` unique molecular formulas [@beckmann2020].
-A full list of the names and InChI chemical identifiers of the spiked chemical standards can be found in Additional file 1.
-The second was healthy leaf tissue samples collected from four ecotypes of the model grass species *Brachypodium distachyon* using the method described in @parker2008.
+Three example sample matrices were used for assessing the molecular formula assignment approach. 
+The first was a diverse mixture of `r nrow(standards_compound_info)` chemical standards from a previously validated assay that included `r standards_compound_MFs` unique molecular formulas [@beckmann2020].
+A full list of the names and InChI chemical identifiers of the chemical standards can be found in Additional file 1.
+The second was human urine purchased from BioIVT (Catalog# HUMANURINEPNN, Lot# 0393918) and spiked with the sample mixture of chemical standards as used above.
+The third was healthy leaf tissue samples collected from four ecotypes of the model grass species *Brachypodium distachyon* using the method described in @parker2008.
 Further details of the sample collection and extraction are described in the Additional file 2.
 
 The sample matrices were each analysed using FIE-HRMS fingerprinting and C18 reverse phase ultra-high performance liquid chromatography high-resolution mass spectrometry (C18-UHPLC-HRMS) profiling.
@@ -131,7 +132,7 @@ All data processing and analysis were performed using the R Statistical Programm
 
 ## Molecular formula assignment
 
-For each biological sample matrix, the input data for molecular formula assignment had undergone spectral processing and pre-treatment and consisted of a sample by *m/z* feature intensity matrix containing both positive and negative ionisation mode data. 
+For each sample matrix, the input data for molecular formula assignment had undergone spectral processing and pre-treatment and consisted of a sample by *m/z* feature intensity matrix containing both positive and negative ionisation mode data. 
 Molecular formula assignment was conducted using the R package *assignments* v`r packageVersion('assignments')` and the approach comprised four major steps which are outlined in Figure \@ref(fig:figure-1-approach).
 Where assignment was possible, *m/z* features were designated with unambiguous molecular formulas, isotopes and ionisation adduct assignments. 
 The following sections outline the methodology behind each major step of the approach.
