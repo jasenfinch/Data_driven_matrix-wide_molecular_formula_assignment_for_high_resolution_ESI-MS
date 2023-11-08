@@ -292,83 +292,99 @@ With the use of high-performance computing resources with greater than 32 CPU wo
 
 ## Molecular formula assignment success {#success}
 
-```{r assignment-success}
-tar_load(standards_compound_PIPs)
-tar_load(spiked_urine_feature_matches)
-# tar_load(spiked_urine_unassigned)
-# tar_load(spiked_urine_assigned)
-# tar_load(spiked_urine_incorrect_assignments)
+```{r assignment-evaluations}
+tar_load(standards_parameters_molecular_formula_assignment)
+tar_load(standards_assignment_outcomes_non_iso)
+tar_load(spiked_urine_assignment_outcomes_non_iso)
+tar_load(standards_compound_outcomes)
 
-brachy_shared_MFs <- tar_read(brachy_FIE_HRMS_results_molecular_formula_assignment) %>% 
-  assignments::assignments() %>% 
-  select(MF) %>% 
-  inner_join(tar_read(brachy_RP_UHPLC_HRMS_results_molecular_formula_assignment) %>% 
-               assignments::assignments() %>% 
-               select(MF),
-             by = 'MF') %>% 
-  distinct() %>% 
+n_adducts <- standards_parameters_molecular_formula_assignment %>%
+  assignments::adducts() %>% 
+  purrr::map_dbl(length) %>% 
+  sum() 
+
+n_features <- list(
+  standards = standards_assignment_outcomes_non_iso,
+  spiked_urine = spiked_urine_assignment_outcomes_non_iso
+) %>% 
+  purrr::map(
+    ~.x %>% 
+      dplyr::pull(
+        Feature
+      ) %>%
+      unique() %>%
+      length()
+  )
+
+standards_n_AI_relevant <- standards_assignment_outcomes_non_iso %>% 
+  dplyr::filter(
+    correlations == TRUE,
+    relationships == TRUE
+  ) %>% 
+  dplyr::pull(MF) %>% 
+  unique() %>% 
+  length()
+
+standards_n_AI_assigned <- standards_assignment_outcomes_non_iso %>% 
+  dplyr::filter(
+    matching_assignment == TRUE
+  ) %>% 
+  dplyr::pull(MF) %>% 
+  unique() %>% 
+  length()
+
+standards_percent_AI_assigned <- {standards_n_AI_assigned / standards_n_AI_relevant * 100} %>% 
+  signif(digits = 3)
+
+standards_n_alternative <- standards_assignment_outcomes_non_iso %>% 
+  dplyr::filter(
+    dplyr::if_all(
+      correlations:assigned,
+      ~.x == TRUE
+    ),
+    matching_adduct == FALSE
+  ) %>% 
   nrow()
 
-brachy_shared_kegg <- intersect(
-  tar_read(brachy_FIE_HRMS_KEGG_matches)$MF %>% 
-    unique(),
-  tar_read(brachy_RP_UHPLC_HRMS_KEGG_matches)$MF %>% 
-    unique()
-) %>% length()
-
-positive_mode_adducts <- brachy_FIE_HRMS_parameters_molecular_formula_assignment %>% 
- assignments::adducts() %>% 
-  .$p %>% 
-  length()
-
-negative_mode_adducts <- brachy_FIE_HRMS_parameters_molecular_formula_assignment %>% 
- assignments::adducts() %>% 
-  .$n %>% 
-  length()
-  
-spiked_urine_MF_PIPs <- standards_compound_PIPs %>% 
-  select(MF,Adduct,Isotope) %>% 
-  distinct()
-
-spiked_urine_feature_matches_MF_n <- spiked_urine_feature_matches$MF %>% 
-  unique() %>% length()
-
-# percent_unassigned <- {nrow(spiked_urine_unassigned) / 
-#     nrow(spiked_urine_feature_matches) * 100} %>% 
-#   signif(digits = 3)
-
-# spiked_urine_unassigned_MF_n <- spiked_urine_unassigned %>% 
-#   anti_join(
-#     spiked_urine_assigned %>% 
-#       select(MF) %>% 
-#       distinct(), 
-#     by = 'MF') %>% 
-#   .$MF %>% 
-#   unique() %>% 
-#   length()
-
-# spiked_urine_correct_assignments_MF_n <- spiked_urine_correct_assignments %>%
-#   .$MF %>% 
-#   unique() %>% 
-#   length()
-
-# spike_urine_standards_MF_assignment_impossible_n <- spiked_urine_feature_matches_MF_n -
-#   nrow(spike_urine_standards_MF_assignment_possible)
-
-# percent_standards_MF_assigned <- {spiked_urine_correct_assignments_MF_n / 
-#   nrow(spike_urine_standards_MF_assignment_possible) * 100} %>% 
-#   signif(digits = 3)
+compounds_percent_assigned <- standards_compound_outcomes %>% 
+  dplyr::filter(
+    outcome %in% c(
+      "Matched to m/z features",
+      "Assigned"
+    )
+  ) %>% 
+  tidyr::gather(
+    sample,n,
+    -outcome
+  ) %>% 
+  tidyr::spread(
+    outcome,n
+  ) %>% 
+  dplyr::group_by(sample) %>% 
+  dplyr::summarise(
+    percent = {Assigned / `Matched to m/z features` * 100} %>% 
+      signif(digits = 3)
+  ) %>% 
+  dplyr::pull(percent) %>% 
+  purrr::set_names(c(
+    'spiked_urine',
+    'standards'
+  )) %>% 
+  as.list()
 ```
 
-An overview of the molecular formula assignments made in both the urine and *B. distachyon* FIE-HRMS matrices is provided in Table \@ref(tab:assignment-results), which shows that similar proportions of *m/z* features were assigned molecular formulas.
-However, there was more than double the relative molecular formula assignment coverage for the C18-UHPLC-HRMS data of *B. distachyon* compared to the FIE-HRMS matrices.
-The chromatographic separation of the C18-UHPLC-HRMS increases the likelihood that a number of correlated ionisation products will be present for a given compound due to a reduction in the effects of ion suppression [@gowda2014].
-There is also a decreased chance of interference in the correlations between related features due to the presence of structural isomers and isobaric compounds.
-A total of `r brachy_shared_MFs` molecular formulas were assigned in both the FIE-HRMS and C18-UHPLC-HRMS data of *B. distachyon*.
+To assess the performance of the molecular formula and graphical component selection approaches, the assignment outcomes were evaluated for the theoretical ionisation products calculated for the chemical standards that matched to *m/z* features in the standards mix and spiked urine. 
+The standards mix allows for a direct evaluation of the selection approaches in a relatively simple, synthetic matrix.
+Alternatively, the spiked urine provides an indication of how the selection approaches perform in a more realistic context where there are more *m/z* features present greater competition for assignment. 
+To simplify interpretation, these evaluations were based on the assignment outcomes of the non-isotopic ionisation products during the adduct and isotopic assignment iterations.
+This reduces the incidence of overlap between ionisation products, where multiple theoretical ionisation products match to a single *m/z* feature as well as a removes the inclusion of relationships involving transformations that complicates the calculation and interpretation of relevant relationships.
+Based on the `r n_adducts` adduct rules specified, there were `r nrow(standards_assignment_outcomes_non_iso)` and `r nrow(spiked_urine_assignment_outcomes_non_iso)` theoretical ionisation products for these chemical standards that matched to `r n_features$standards` and `r n_features$spiked_urine` *m/z* in the standards mix and spiked urine respectively.
+The theoretical ionisation products that directly matched *m/z* features, including the isotopic theoretical ionisation products, are provided in Additional file 5.
+The frequencies of assignment outcomes for the theoretical ionisation products in these matrices are shown in Table \@ref(tab:ip-outcomes).
 
 \linespread{1}
 
-```{r assignment-evaluations}
+```{r ip-outcomes}
 tar_load(assignment_outcomes_summary)
 
 assignment_outcomes_total <- assignment_outcomes_summary %>% 
@@ -431,11 +447,23 @@ assignment_outcomes_summary %>%
 
 \linespread{2}
 
+Of the `r standards_n_AI_relevant` chemical standards that had theoretical ionisation products with relevant relationships in the standards mix, the molecular formula and graphical component selection approaches were able to correctly assign molecular formulas to `r standards_n_AI_assigned` (`r standards_percent_AI_assigned`%) of these.
+For the `r xfun::numbers_to_words(standards_n_alternative)` ionisation products for which an alternative adduct and molecular formula were assigned, two of these were assigned to alternative components with a higher $P_c$ score resulting from a higher component AIS score.
+The other alternative component was selected due to higher $P_c$ score resulting from a higher component degree.
+There was only a single instance where an ionisation product was incorrectly assigned as a result of the molecular formula selection approach.
+
+The incidence of alternative adduct and molecular formula assignment is higher in the spiked urine (Table \@ref(tab:ip-outcomes)).
+However, this is expected as there and are more *m/z* features present and greater numbers of background compounds and therefore greater chance for alternative graphical components to be present in the correlation network.
+It does not necessarily reflect a poor performance of the graphical component selection approach, there is just a higher probability that these *m/z* could potentially be alternative compounds. 
+Alternative assignment resulting from molecular formula selection still remains low.
+
+The assignment results for the chemical standards in the standards mix and spiked urine are provided in Table \@ref(tab:compound-frequencies).
+These show that, where compounds had *m/z* features matching to theoretical ionisation products, the approach was able to assign `r compounds_percent_assigned$standards`% and `r compounds_percent_assigned$spiked_urine`% of these chemical standards in the standards mix and spiked urine respectively. 
+The *m/z* for which a chemical standard was assigned are provided in Additional file 6.
+
 \linespread{1}
 
-```{r compound-evaluations}
-tar_load(standards_compound_outcomes)
-
+```{r compound-frequencies}
 standards_compound_outcomes %>%
   dplyr::mutate(
     outcome = outcome %>%
@@ -475,25 +503,14 @@ standards_compound_outcomes %>%
 
 \linespread{2}
 
-Although there were proportionately more molecular formulas assigned to *m/z* features in the C18-UHPLC-HRMS compared to the FIE-HRMS *B. distachyon* matrix, there was a disproportionate number of these molecular formulas that matched to compounds in the KEGG database specific to *B. distachyon* and able to form the relevant ionisation products (Table \@ref(tab:assignment-results)).
-However, only `r brachy_shared_kegg` of the molecular formulas matched to compounds in the KEGG database were found to be common between the two techniques.
-The low number of assigned molecular formulas partly reflects the incompleteness of the KEGG database, especially with respect to the secondary metabolites that are prolific in C18-UHPLC-HRMS [@breitling2013].
-The assignments for all the matrices along with the matched KEGG compound IDs are provided in Additional file 4.
+An overview of the molecular formula assignments made across the example sample matrices is provided in Table S6 (Additional file 3).
+All of the assignments for these example matrices along with any matched KEGG compound IDs are provided in Additional file 4.
+The assignments obtained from the *B. distachyon* is provided as an example showing the intended real world application of the molecular formula assignment approach to a sample set that includes multiple underlying experimental classes in the correlation network.
+A similar number of molecular formulas were assigned to the FIE-HRMS matrices for the spiked human urine and *B. distachyon* matrices as well as similar numbers of molecular formulas that were matched to KEGG compounds.
 
-To assess the assignments in the example urine matrix with respect to the spiked chemical standards, the predicted ionisation products were first identified by directly matching these to the observed *m/z*.
-Based on the `r positive_mode_adducts + negative_mode_adducts` adducts and four isotopic rules specified, there were `r nrow(spiked_urine_MF_PIPs)` predicted ionisation product *m/z* for these chemical standards.
-A total of `r nrow(spiked_urine_feature_matches)` of these ionisation products could be directly matched to the observed *m/z* features which included `r spiked_urine_feature_matches_MF_n` of the `r standards_compound_MFs` unique molecular formulas of the spiked chemical standards. 
-These directly matched *m/z* features are provided in Additional file 5.
-For `r #nrow(spiked_urine_unassigned)` (`r #percent_unassigned`%) of these matched *m/z* features, no molecular formula was assigned by the approach, which included `r #spiked_urine_unassigned_MF_n` of the molecular formulas of the spiked chemical standards.
-However, `r #nrow(spiked_urine_assigned)` of the matched features were assigned a molecular formula with `r #nrow(spiked_urine_correct_assignments)` of these corresponding to one of the spiked compound ionisation products. This included `r #spiked_urine_correct_assignments_MF_n` of the spiked chemical standards molecular formulas (Table \@ref(tab:assignment-results)).
-The *m/z* features assigned to molecular formulas corresponding to the spiked chemical standards are provided in Additional file 6. 
-
-The remaining `r #nrow(spiked_urine_incorrect_assignments)` matched *m/z* features were assigned alternative molecular formula ionisation products.
-The *m/z* of the predicted ionisation features that it was not possible to assign molecular formulas were as a result of either not being correlated with other *m/z* features that corresponded to a correct adduct or isotope mass difference or whose subgraph components were not selected, with more plausible solutions instead selected based on the correlation network. 
-
-Accounting for the `r #spike_urine_standards_MF_assignment_impossible_n` chemical standards that were not assigned due to a lack of relevant correlated mass relationships, the algorithm was able to assign molecular formulas to features corresponding to `r #percent_standards_MF_assigned`% of the `r #nrow(spike_urine_standards_MF_assignment_possible)` possible chemical standards.
-This highlights the difficulty in annotating these complex biological mixtures containing hundreds of compounds, which can create many thousands of possible ionisation products.
-Interference in correlations due to the presence of isobaric compounds and MS instrument noise can weaken correlations between features, particularly in those with low abundance.
+While not the intended primary application of the approach, the C18-UPHLC-HRMS data from *B. distachyon* had the highest percentage of *m/z* features assigned along with the greatest number of molecular formulas. 
+The chromatographic separation of the C18-UHPLC-HRMS enables the correlation network to be considered within limited retention time windows and increases the likelihood that a number of correlated ionisation products will be present for a given compound.
+Added to this, the LC-MS reduces the effects of ion suppression compare to FIE-HRMS and also decreases the chance of potential interference in the correlations between related features due to the presence of structural isomers and isobaric compounds [@gowda2014]. 
 
 ## The molecular formula assignment approach
 ```{r sample-size}
@@ -522,7 +539,6 @@ This is especially important in non-targeted metabolomics data sets that can con
 For example, to detect a significant lower limit of Pearson's correlation coefficient of 0.7 for a matrix containing `r sample_size_n_features` *m/z* features, an approximate minimum sample size of `r sample_size` observations would be required (p < 0.05, Bonferroni corrected) [@cohen2013]. 
 Metabolomics fingerprinting and profiling experiments typically require high replication of 10-15 observations per class in order to discriminate between the sample classes [@enot2008]. 
 Therefore, a sample set comparing just four classes brings this to within a practical range for applying this approach in many cases, such as the example *B. distachyon* ecotype comparison sample set provided here.
-The assignments obtained from the *B. distachyon* example matrix also show the application of the assignment approach to sample sets that contain multiple underlying experimental classes.
 
 The approaches of the *MFAssignR* R package and *Formularity* software provide alternative means of assigning molecular formulas to both fingerprinting and LC-MS data, with *Formularity* utilising a compound identification database to aid molecular formula selection [@schum2020;@tolic2017].
 While these approaches provide the advantage of being able to assign molecular formulas using a single replicate with substantially low computational demands, they do not incorporate the use of correlations between *m/z* features.
