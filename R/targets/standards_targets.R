@@ -715,7 +715,7 @@ standards_figures_targets <- list(
       dplyr::distinct() %>% 
       dplyr::count(sample) %>% 
       dplyr::rename(
-        `Matched to m/z features` = n
+        `MFs matched to m/z features` = n
       ) %>% 
       dplyr::left_join(
         assignment_outcomes_non_iso %>% 
@@ -739,7 +739,7 @@ standards_figures_targets <- list(
           dplyr::distinct() %>% 
           dplyr::count(sample) %>% 
           dplyr::rename(
-            `Assigned during A&I assignment step` = n
+            `Assigned during A&I assignment iterations` = n
           ),
         by = 'sample'
       ) %>% 
@@ -761,7 +761,7 @@ standards_figures_targets <- list(
           dplyr::distinct() %>% 
           dplyr::count(sample) %>% 
           dplyr::rename(
-            `Assigned during T assignment step` = n
+            `Assigned during T assignment iterations` = n
           ),
         by = 'sample'
       ) %>% 
@@ -771,7 +771,7 @@ standards_figures_targets <- list(
           dplyr::distinct() %>% 
           dplyr::count(sample) %>% 
           dplyr::rename(
-            `Assigned` = n
+            `Total MFs assigned` = n
           ),
         by = 'sample'
       ) %>% 
@@ -788,11 +788,11 @@ standards_figures_targets <- list(
         outcome = factor(
           outcome,
           levels = c(
-            'Matched to m/z features',
+            'MFs matched to m/z features',
             'Correlations obtained',
-            'Assigned during A&I assignment step',
-            'Assigned during T assignment step',
-            'Assigned'
+            'Assigned during A&I assignment iterations',
+            'Assigned during T assignment iterations',
+            'Total MFs assigned'
           )
         )
       ) %>% 

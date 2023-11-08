@@ -349,8 +349,8 @@ standards_n_alternative <- standards_assignment_outcomes_non_iso %>%
 compounds_percent_assigned <- standards_compound_outcomes %>% 
   dplyr::filter(
     outcome %in% c(
-      "Matched to m/z features",
-      "Assigned"
+      "MFs matched to m/z features",
+      "Total MFs assigned"
     )
   ) %>% 
   tidyr::gather(
@@ -362,7 +362,7 @@ compounds_percent_assigned <- standards_compound_outcomes %>%
   ) %>% 
   dplyr::group_by(sample) %>% 
   dplyr::summarise(
-    percent = {Assigned / `Matched to m/z features` * 100} %>% 
+    percent = {`Total MFs assigned` / `MFs matched to m/z features` * 100} %>% 
       signif(digits = 3)
   ) %>% 
   dplyr::pull(percent) %>% 
@@ -494,7 +494,7 @@ standards_compound_outcomes %>%
       rep('l',1),
       rep('r',2)
     ),
-    caption = 'Molecular formula assignment results frequencies for the 64 unique molecular formulas of the chemical standards in the standards mix and spiked into human urine.'
+    caption = 'Molecular formula assignment results for the 64 unique molecular formulas (MFs) of the chemical standards in the standards mix and spiked into human urine. The MFs assigned are also shown for the individual adduct and isotopic (A\\&I) iterations and the transformation (T) iterations.'
   ) %>%
   kableExtra::kable_styling(
     latex_options = "HOLD_position"
