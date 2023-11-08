@@ -60,6 +60,17 @@ manuscript_targets <- list(
         `m/z` = mz,
         `Ionisation mode` = Mode,
         `PPM error`
+      ) %>%
+      dplyr::mutate(
+        Adduct = Adduct %>% 
+          replace(
+            Adduct == '[M+Cl37]1-',
+            '[M+37Cl]1-'
+          ) %>% 
+          replace(
+            Adduct == '[M+K41]1+',
+            '[M+41K]1+'
+          )
       ) %>% 
       jfmisc::exportCSV(
         file = 'exports/manuscript/supplementary_materials/Additional file 4.csv'
@@ -84,6 +95,17 @@ manuscript_targets <- list(
         `m/z` = `Measured m/z`,
         `Ionisation mode` = Mode,
         `PPM error`
+      ) %>% 
+      dplyr::mutate(
+        Adduct = Adduct %>% 
+          replace(
+            Adduct == '[M+Cl37]1-',
+            '[M+37Cl]1-'
+          ) %>% 
+          replace(
+            Adduct == '[M+K41]1+',
+            '[M+41K]1+'
+          )
       ) %>% 
       jfmisc::exportCSV(
         file = 'exports/manuscript/supplementary_materials/Additional file 5.csv'
@@ -155,6 +177,17 @@ manuscript_targets <- list(
              `PPM error`,
              `MF Plausibility (%)`,
              `KEGG ID`) %>% 
+      dplyr::mutate(
+        Adduct = Adduct %>% 
+          replace(
+            Adduct == '[M+Cl37]1-',
+            '[M+37Cl]1-'
+          ) %>% 
+          replace(
+            Adduct == '[M+K41]1+',
+            '[M+41K]1+'
+          )
+      ) %>% 
       jfmisc::exportCSV(
         file = 'exports/manuscript/supplementary_materials/Additional file 6.csv'
       )
