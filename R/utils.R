@@ -13,6 +13,6 @@ targets::tar_option_set(
 ## Parallel backend
 metaboMisc::suitableParallelPlan(
   workers = jfmisc::suitableParallelWorkers(
-    RAM_per_worker = 32
+    RAM_per_worker = 12
   )
 )
