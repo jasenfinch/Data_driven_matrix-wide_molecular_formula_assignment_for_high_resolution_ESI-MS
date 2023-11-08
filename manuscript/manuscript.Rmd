@@ -379,7 +379,7 @@ Alternatively, the spiked urine provides an indication of how the selection appr
 To simplify interpretation, these evaluations were based on the assignment outcomes of the non-isotopic IPs during the adduct and isotopic assignment iterations.
 This reduces the incidence of overlap between IPs, where multiple theoretical IPs match to a single *m/z* feature as well as a removes the inclusion of relationships involving transformations that complicates the calculation and interpretation of relevant relationships.
 Based on the `r n_adducts` adduct rules specified, there were `r nrow(standards_assignment_outcomes_non_iso)` and `r nrow(spiked_urine_assignment_outcomes_non_iso)` theoretical IPs for these chemical standards that matched to `r n_features$standards` and `r n_features$spiked_urine` *m/z* in the standards mix and spiked urine respectively.
-The theoretical IPs that directly matched *m/z* features, including the isotopic theoretical IPs, are provided in Additional file 5.
+The theoretical IPs that directly matched *m/z* features, including the isotopic theoretical IPs, are provided in Additional file 4.
 The frequencies of assignment outcomes for the theoretical IPs in these matrices are shown in Table \@ref(tab:ip-outcomes).
 
 \linespread{1}
@@ -459,7 +459,7 @@ Alternative assignment resulting from molecular formula selection still remains 
 
 The assignment results for the chemical standards in the standards mix and spiked urine are provided in Table \@ref(tab:compound-frequencies).
 These show that, where compounds had *m/z* features matching to theoretical IPs, the approach was able to assign `r compounds_percent_assigned$standards`% and `r compounds_percent_assigned$spiked_urine`% of these chemical standards in the standards mix and spiked urine respectively. 
-The *m/z* for which a chemical standard was assigned are provided in Additional file 6.
+The *m/z* for which a chemical standard was assigned are provided in Additional file 5.
 
 \linespread{1}
 
@@ -504,7 +504,7 @@ standards_compound_outcomes %>%
 \linespread{2}
 
 An overview of the molecular formula assignments made across the example sample matrices is provided in Table S6 (Additional file 3).
-All of the assignments for these example matrices along with any matched KEGG compound IDs are provided in Additional file 4.
+All of the assignments for these example matrices along with any matched KEGG compound IDs are provided in Additional file 6.
 The assignments obtained from the *B. distachyon* is provided as an example showing the intended real world application of the molecular formula assignment approach to a sample set that includes multiple underlying experimental classes in the correlation network.
 A similar number of molecular formulas were assigned to the FIE-HRMS matrices for the spiked human urine and *B. distachyon* matrices as well as similar numbers of molecular formulas that were matched to KEGG compounds.
 
