@@ -138,6 +138,13 @@ tar_read(assignment_results) %>%
                     'N/A')) %>% 
   tidyr::spread(matrix,Value) %>% 
   slice(c(1,4,9,2,10,3,8,6,5)) %>%
+  dplyr::select(
+    Variable,
+    `standards-mix FIE-HRMS`,
+    `spiked-urine FIE-HRMS`,
+    `brachy FIE-HRMS`,
+    `brachy C18-UHPLC-HRMS`
+  ) %>% 
   set_colnames(
     stringr::str_split_fixed(colnames(.),
                              ' ',2)[,2]) %>% 
@@ -154,9 +161,9 @@ tar_read(assignment_results) %>%
   kable_styling() %>%
   add_header_above(c(
     " ",
-    "\\\\textit{B. distachyon} leaf" = 2,
+    "Standards mix" = 1,
     "Human urine" = 1,
-    "Standards mix" = 1),
+    "\\\\textit{B. distachyon} leaf" = 2),
     escape = FALSE)
 ```
 
