@@ -137,7 +137,7 @@ tar_read(assignment_results) %>%
                     Value == 'NA',
                     'N/A')) %>% 
   tidyr::spread(matrix,Value) %>% 
-  slice(c(1,4,9,2,10,3,8,5,6,7)) %>%
+  slice(c(1,4,9,2,10,3,8,6,5,7)) %>%
   set_colnames(
     stringr::str_split_fixed(colnames(.),
                              ' ',2)[,2]) %>% 
