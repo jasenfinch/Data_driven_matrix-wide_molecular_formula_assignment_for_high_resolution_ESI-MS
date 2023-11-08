@@ -503,7 +503,7 @@ standards_compound_outcomes %>%
 
 \linespread{2}
 
-An overview of the molecular formula assignments made across the example sample matrices is provided in Table S6 (Additional file 3).
+An overview of the molecular formula assignments made across the example sample matrices is provided in Table \@ref(tab:assignment-results).
 All of the assignments for these example matrices along with any matched KEGG compound IDs are provided in Additional file 6.
 The assignments obtained from the *B. distachyon* is provided as an example showing the intended real world application of the molecular formula assignment approach to a sample set that includes multiple underlying experimental classes in the correlation network.
 A similar number of molecular formulas were assigned to the FIE-HRMS matrices for the spiked human urine and *B. distachyon* matrices as well as similar numbers of molecular formulas that were matched to KEGG compounds.
@@ -511,6 +511,80 @@ A similar number of molecular formulas were assigned to the FIE-HRMS matrices fo
 While not the intended primary application of the approach, the C18-UPHLC-HRMS data from *B. distachyon* had the highest percentage of *m/z* features assigned along with the greatest number of molecular formulas. 
 The chromatographic separation of the C18-UHPLC-HRMS enables the correlation network to be considered within limited retention time windows and increases the likelihood that a number of correlated IPs will be present for a given compound.
 Added to this, the LC-MS reduces the effects of ion suppression compare to FIE-HRMS and also decreases the chance of potential interference in the correlations between related features due to the presence of structural isomers and isobaric compounds [@gowda2014]. 
+
+\linespread{1}
+
+```{r assignment-results}
+tar_read(assignment_results) %>%
+  dplyr::full_join(
+    tar_read(assignment_matches) %>% 
+      dplyr::mutate(
+        matrix = matrix %>% 
+          replace(
+            matrix == 'standards',
+            'standards-mix'
+          )
+      ), 
+    by = c("matrix", "technique")) %>% 
+  mutate(
+    matrix = paste(matrix,technique)
+  ) %>%
+  mutate(
+    n_assignments = glue::glue(
+      '{n_assignments} ({signif(n_assignments/n_features * 100,digits = 3)}\\%)'),
+    across(where(is.numeric),~prettyNum(.x,big.mark = ','))) %>%
+  select(-technique) %>% 
+  dplyr::rename(
+    `\\textit{m/z} features` = n_features,
+    correlations = n_correlations,
+    relationships = n_relationships,
+    `adduct and isotopic step assignments` = n_ai_assignments,
+    `transformation step assignments` = n_t_assignments,
+    `assigned \\textit{m/z}` = n_assignments,
+    `molecular formulas (MF)` = n_MFs,
+    `KEGG compound matches` = KEGG_compound_matches,
+    `KEGG MF matches` = KEGG_MF_matches,
+    `matched chemical standards` = matched_standards) %>% 
+  tidyr::gather(Variable,Value,-matrix) %>% 
+  mutate(
+    Value = replace(Value,
+                    Value == 'NA',
+                    'N/A')) %>% 
+  tidyr::spread(matrix,Value) %>% 
+  slice(c(1,4,9,2,10,3,8,6,5)) %>%
+  dplyr::select(
+    Variable,
+    `standards-mix FIE-HRMS`,
+    `spiked-urine FIE-HRMS`,
+    `brachy FIE-HRMS`,
+    `brachy C18-UHPLC-HRMS`
+  ) %>% 
+  set_colnames(
+    stringr::str_split_fixed(colnames(.),
+                             ' ',2)[,2]) %>% 
+  knitr::kable(
+    format = 'latex',
+    booktabs = TRUE,
+    linesep = '',
+    escape = FALSE,
+    align = c(
+      rep('l',1),
+      rep('r',4)
+    ),
+    caption = 'A summary of the molecular formula assignment results for the example sample matrices.') %>%
+  kable_styling(
+    font_size = 10,
+    latex_options = "HOLD_position"
+  ) %>%
+  add_header_above(c(
+    " ",
+    "Standards mix" = 1,
+    "Human urine" = 1,
+    "\\\\textit{B. distachyon} leaf" = 2),
+    escape = FALSE)
+```
+
+\linespread{2}
 
 ## The molecular formula assignment approach
 ```{r sample-size}

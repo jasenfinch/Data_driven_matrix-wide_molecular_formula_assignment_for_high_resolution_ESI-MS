@@ -42,9 +42,9 @@ manuscript_targets <- list(
         file = 'exports/manuscript/supplementary_materials/Additional file 1.csv')
   ),
   
-  ## Supplementary table S7 directly matched chemical standard ionisation products
+  ## Supplementary table S6 directly matched chemical standard ionisation products
   tarchetypes::tar_file(
-    table_s7,
+    table_s6,
     list(
       `Standards mix` = standards_feature_matches,
       `Spiked urine` = spiked_urine_feature_matches
@@ -77,9 +77,9 @@ manuscript_targets <- list(
       )
   ),
   
-  ## Supplementary table S8 assigned chemical standards
+  ## Supplementary table S7 assigned chemical standards
   tarchetypes::tar_file(
-    table_s8,
+    table_s7,
     list(
       `Standards mix` = standards_correct_assignments,
       `Spiked urine` = spiked_urine_correct_assignments
@@ -112,9 +112,9 @@ manuscript_targets <- list(
       )
   ),
   
-  ## Supplementary table S9 of all assignments
+  ## Supplementary table S8 of all assignments
   tarchetypes::tar_file(
-    table_s9,
+    table_s8,
     bind_rows(
       list(
         `NA_Standards mix_FIE-HRMS` = standards_results_molecular_formula_assignment %>% 
@@ -208,9 +208,9 @@ manuscript_targets <- list(
           c(supplementary_methods[1],
             supplementary_tables[1],
             table_s1,
+            table_s6,
             table_s7,
-            table_s8,
-            table_s9),
+            table_s8),
           flags = '-r9Xj')
       
       zipfile
