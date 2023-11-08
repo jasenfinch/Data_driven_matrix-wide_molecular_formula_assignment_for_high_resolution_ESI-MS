@@ -33,21 +33,19 @@ Mixed gender, unfiltered pooled human urine (BioIVT, Catalog# HUMANURINEPNN, Lot
 Samples were placed on an orbital shaker (FATSM002, Favorgen Biotech Corp) for 20 minutes at 1,400 rpm and 4 ^$\circ$^C in the dark. 
 The samples were centrifuged (EBA 12 R, Hettich) at 13,000 rpm for 5 minutes at 4 ^$\circ$^C and 20 $\mu$L of the supernatant was transferred to a clean glass HPLC vial, containing a 200 $\mu$L flat bottom micro insert (Chromacol) and diluted with 80 $\mu$L of H~2~O:MeOH (3:7) directly in the vial. 
 
-The `r tar_read(spiked_urine_compound_info) %>% nrow()` chemical standards were dissolved in a solvent mixture of methanol, water and formic acid (70%:30%:0.1%), each 4.5 $\mu$g/ml concentration.
+The `r tar_read(standards_compound_info) %>% nrow()` chemical standards were dissolved in a solvent mixture of methanol, water and formic acid (70%:30%:0.1%), each 4.5 $\mu$g/ml concentration.
 700 $\mu$L of urine and 300 $\mu$L of the standards mixture were combined to produce the spiked urine sample.
 
 ## MS analysis
 
-FIE-HRMS mass spectra were acquired on an Exactive Orbitrap (ThermoFinnigan, San Jose CA) mass spectrometer coupled to an Accela (ThermoFinnigan, San Jose CA) ultra-performance liquid chromatography (LC) system for the *B. distachyon* samples and the Human urine on a Q-Exactive Orbitrap (ThermoFinnigan, San Jose CA) coupled to a Dionex (ThermoFinnigan, San Jose CA) ultra-performance LC system. 
+FIE-HRMS mass spectra were acquired on on a Q-Exactive Orbitrap (ThermoFinnigan, San Jose CA) coupled to a Dionex (ThermoFinnigan, San Jose CA) ultra-performance LC system system for the *B. distachyon* samples and the Human urine. 
 A sample volume of 20 $\mu$L was injected and delivered to the electrospray ionisation (ESI) source via a 'plug' flow solvent of pre-mixed HPLC grade MeOH (Fisher Scientific) and ultra-pure H~2~O (18.2 $\Omega$) at a ratio of 7:3. 
 The initial flow rate was 60 $\mu$L min^-1^ for 0.4 minutes and increased to 200 $\mu$L min^-1^ over 0.8 minutes. 
 The flow rate was maintained at 200 $\mu$L min^-1^ for 0.3 minutes then increased to 600 $\mu$L min^-1^ over 1.5 minutes. 
 Then the flow rate was then returned to 60 $\mu$L min^-1^ for 0.5 minutes. 
 The total gradient time was 3.5 minutes. The capillary temperature and voltage were set at 270 ^$\circ$^C and 37.50 kV respectively. 
 
-For the *B. distachyon* samples, mass spectra were acquired using a single scan filter for each of the positive and negative ionisation modes. 
-Positive ions were acquired between 55.000 and 1000.000 *m/z*, and  63.000 and 1000.000 *m/z* for negative ions.
-Mass spectra for the spiked human urine were acquired with two scan events between 55-280 *m/z* and 270-1200 *m/z* for each of the positive and negative acquisition modes.
+The mass spectra were acquired with two scan events between 55-280 *m/z* and 270-1200 *m/z* for each of the positive and negative acquisition modes.
 For all scan events, the scan rate was 1 Hz with a mass resolution of 100,000. 
 The automatic gain control (AGC) target was 5 x10^5^ and the total ion injection time 250 ms.
 
