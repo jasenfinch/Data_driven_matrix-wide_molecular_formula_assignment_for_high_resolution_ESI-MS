@@ -33,6 +33,7 @@ tar_load(brachy_FIE_HRMS_parameters_molecular_formula_assignment)
 adducts <-  brachy_FIE_HRMS_parameters_molecular_formula_assignment %>% 
   assignments::adducts() %>% 
   purrr::flatten_chr()
+  
 
 mzAnnotation::adduct_rules() %>% 
   dplyr::filter(Name %in% adducts) %>% 
@@ -41,10 +42,20 @@ mzAnnotation::adduct_rules() %>%
     Charge,
     `No. molecules` = xM,
     `Mass difference` = Add
-  ) %>% 
-  mutate(`Mass difference` = round(`Mass difference`,5)) %>% 
+  ) %>%
+  mutate(
+    Adduct = Adduct %>% 
+      stringr::str_replace_all(']1-',']$^{1-}$') %>% 
+      stringr::str_replace_all(']2-',']$^{2-}$') %>% 
+      stringr::str_replace_all('Cl37','$^{37}$Cl') %>% 
+      stringr::str_replace_all(stringr::coll(']1+'),']$^{1+}$') %>% 
+      stringr::str_replace_all(stringr::coll(']2+'),']$^{2+}$') %>% 
+      stringr::str_replace_all('K41','$^{41}$K'),
+    `Mass difference` = round(`Mass difference`,5)
+    ) %>% 
   knitr::kable(caption = 'Information for positive and negative mode adducts used for calculating ionisation products.',
                format = 'latex',
+               escape = FALSE,
                booktabs = TRUE)
 ```
 
