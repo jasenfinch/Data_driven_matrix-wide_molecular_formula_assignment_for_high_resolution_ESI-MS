@@ -126,7 +126,7 @@ tar_read(assignment_results) %>%
     relationships = n_relationships,
     `adduct and isotopic step assignments` = n_ai_assignments,
     `transformation step assignments` = n_t_assignments,
-    `assigned features` = n_assignments,
+    `assigned \\textit{m/z}` = n_assignments,
     `molecular formulas (MF)` = n_MFs,
     `KEGG compound matches` = KEGG_compound_matches,
     `KEGG MF matches` = KEGG_MF_matches,
@@ -137,7 +137,7 @@ tar_read(assignment_results) %>%
                     Value == 'NA',
                     'N/A')) %>% 
   tidyr::spread(matrix,Value) %>% 
-  slice(c(1,4,9,2,10,3,8,6,5,7)) %>%
+  slice(c(1,4,9,2,10,3,8,6,5)) %>%
   set_colnames(
     stringr::str_split_fixed(colnames(.),
                              ' ',2)[,2]) %>% 
