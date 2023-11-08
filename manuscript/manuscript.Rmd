@@ -80,7 +80,7 @@ However, mass accuracy alone does not meet the requirements for metabolite annot
 
 Metabolite annotation is a crucial aspect for ensuring that biological interpretation is possible from metabolomics data sets.
 A number of strategies can be employed to annotate peaks in mass spectra.
-These can include simple approaches such as heuristic filtering of molecular formulas generated from *m/z* or direct matching putative ionisation products to metabolite databases [@draper2009; @green2015; @kind2007];
+These can include simple approaches such as heuristic filtering of molecular formulas generated from *m/z* or direct matching putative ionisation products (IPs) to metabolite databases [@draper2009; @green2015; @kind2007];
 but also ensemble approaches that integrate a number of strategies like correlation analysis, ionisation product scoring and biotransformations [@baran2013; @fernandez2014; @kuhl2012; @uppal2017].
 Tandem MS can also be employed for LC-MS approaches and provides a convenient method for structural validation [@neumann2010].
 However, this is unsuitable for metabolome fingerprinting-based techniques due to the presence of structural isomers and isobaric compounds.
@@ -260,7 +260,7 @@ Each iteration was performed as for the previous adduct and isotopic assignment 
 tar_load(KEGG_compounds_valid_MFs)
 ```
 
-Features matching to possible ionisation products of the chemical standards were identified by first applying the MZedDB ionisation 'rules' and calculating their theoretical *m/z* for each of the adducts specified in Section \@ref(relationships) [@draper2009].
+Features matching to possible IPs of the chemical standards were identified by first applying the MZedDB ionisation 'rules' and calculating their theoretical *m/z* for each of the adducts specified in Section \@ref(relationships) [@draper2009].
 The calculated *m/z* were then matched to the *m/z* features in the standards mix and spiked urine data using a search range of $\pm$ `r search_ppm` ppm.
 
 The molecular formulas and monoisotopic masses for compound entries in the KEGG compound database were accessed using the R package *KEGGREST* v`r packageVersion('KEGGREST')` [@kanehisa2000;@tenenbaum2021].
@@ -373,14 +373,14 @@ compounds_percent_assigned <- standards_compound_outcomes %>%
   as.list()
 ```
 
-To assess the performance of the molecular formula and graphical component selection approaches, the assignment outcomes were evaluated for the theoretical ionisation products calculated for the chemical standards that matched to *m/z* features in the standards mix and spiked urine. 
+To assess the performance of the molecular formula and graphical component selection approaches, the assignment outcomes were evaluated for the theoretical IPs calculated for the chemical standards that matched to *m/z* features in the standards mix and spiked urine. 
 The standards mix allows for a direct evaluation of the selection approaches in a relatively simple, synthetic matrix.
 Alternatively, the spiked urine provides an indication of how the selection approaches perform in a more realistic context where there are more *m/z* features present greater competition for assignment. 
-To simplify interpretation, these evaluations were based on the assignment outcomes of the non-isotopic ionisation products during the adduct and isotopic assignment iterations.
-This reduces the incidence of overlap between ionisation products, where multiple theoretical ionisation products match to a single *m/z* feature as well as a removes the inclusion of relationships involving transformations that complicates the calculation and interpretation of relevant relationships.
-Based on the `r n_adducts` adduct rules specified, there were `r nrow(standards_assignment_outcomes_non_iso)` and `r nrow(spiked_urine_assignment_outcomes_non_iso)` theoretical ionisation products for these chemical standards that matched to `r n_features$standards` and `r n_features$spiked_urine` *m/z* in the standards mix and spiked urine respectively.
-The theoretical ionisation products that directly matched *m/z* features, including the isotopic theoretical ionisation products, are provided in Additional file 5.
-The frequencies of assignment outcomes for the theoretical ionisation products in these matrices are shown in Table \@ref(tab:ip-outcomes).
+To simplify interpretation, these evaluations were based on the assignment outcomes of the non-isotopic IPs during the adduct and isotopic assignment iterations.
+This reduces the incidence of overlap between IPs, where multiple theoretical IPs match to a single *m/z* feature as well as a removes the inclusion of relationships involving transformations that complicates the calculation and interpretation of relevant relationships.
+Based on the `r n_adducts` adduct rules specified, there were `r nrow(standards_assignment_outcomes_non_iso)` and `r nrow(spiked_urine_assignment_outcomes_non_iso)` theoretical IPs for these chemical standards that matched to `r n_features$standards` and `r n_features$spiked_urine` *m/z* in the standards mix and spiked urine respectively.
+The theoretical IPs that directly matched *m/z* features, including the isotopic theoretical IPs, are provided in Additional file 5.
+The frequencies of assignment outcomes for the theoretical IPs in these matrices are shown in Table \@ref(tab:ip-outcomes).
 
 \linespread{1}
 
@@ -447,8 +447,8 @@ assignment_outcomes_summary %>%
 
 \linespread{2}
 
-Of the `r standards_n_AI_relevant` chemical standards that had theoretical ionisation products with relevant relationships in the standards mix, the molecular formula and graphical component selection approaches were able to correctly assign molecular formulas to `r standards_n_AI_assigned` (`r standards_percent_AI_assigned`%) of these.
-For the `r xfun::numbers_to_words(standards_n_alternative)` ionisation products for which an alternative adduct and molecular formula were assigned, two of these were assigned to alternative components with a higher $P_c$ score resulting from a higher component AIS score.
+Of the `r standards_n_AI_relevant` chemical standards that had theoretical IPs with relevant relationships in the standards mix, the molecular formula and graphical component selection approaches were able to correctly assign molecular formulas to `r standards_n_AI_assigned` (`r standards_percent_AI_assigned`%) of these.
+For the `r xfun::numbers_to_words(standards_n_alternative)` IPs for which an alternative adduct and molecular formula were assigned, two of these were assigned to alternative components with a higher $P_c$ score resulting from a higher component AIS score.
 The other alternative component was selected due to higher $P_c$ score resulting from a higher component degree.
 There was only a single instance where an ionisation product was incorrectly assigned as a result of the molecular formula selection approach.
 
@@ -458,7 +458,7 @@ It does not necessarily reflect a poor performance of the graphical component se
 Alternative assignment resulting from molecular formula selection still remains low.
 
 The assignment results for the chemical standards in the standards mix and spiked urine are provided in Table \@ref(tab:compound-frequencies).
-These show that, where compounds had *m/z* features matching to theoretical ionisation products, the approach was able to assign `r compounds_percent_assigned$standards`% and `r compounds_percent_assigned$spiked_urine`% of these chemical standards in the standards mix and spiked urine respectively. 
+These show that, where compounds had *m/z* features matching to theoretical IPs, the approach was able to assign `r compounds_percent_assigned$standards`% and `r compounds_percent_assigned$spiked_urine`% of these chemical standards in the standards mix and spiked urine respectively. 
 The *m/z* for which a chemical standard was assigned are provided in Additional file 6.
 
 \linespread{1}
@@ -509,7 +509,7 @@ The assignments obtained from the *B. distachyon* is provided as an example show
 A similar number of molecular formulas were assigned to the FIE-HRMS matrices for the spiked human urine and *B. distachyon* matrices as well as similar numbers of molecular formulas that were matched to KEGG compounds.
 
 While not the intended primary application of the approach, the C18-UPHLC-HRMS data from *B. distachyon* had the highest percentage of *m/z* features assigned along with the greatest number of molecular formulas. 
-The chromatographic separation of the C18-UHPLC-HRMS enables the correlation network to be considered within limited retention time windows and increases the likelihood that a number of correlated ionisation products will be present for a given compound.
+The chromatographic separation of the C18-UHPLC-HRMS enables the correlation network to be considered within limited retention time windows and increases the likelihood that a number of correlated IPs will be present for a given compound.
 Added to this, the LC-MS reduces the effects of ion suppression compare to FIE-HRMS and also decreases the chance of potential interference in the correlations between related features due to the presence of structural isomers and isobaric compounds [@gowda2014]. 
 
 ## The molecular formula assignment approach
@@ -592,7 +592,7 @@ They could also be used to provide some information about precursor ions in LC-M
 
 The approach presented here, and its implementation in the *assignments* R package, provides investigators with an automated means to assign molecular formulas to non-targeted ESI-MS metabolomics with the use of high-performance computing resources.
 
-Using correlation networks of *m/z* feature abundances, molecular formula selection and graphical component selection, assigned molecular formulas for predicted ionisation products could be recovered from a subset of chemical standards spiked into an example human urine sample analysed using FIE-HRMS metabolome fingerprinting.
+Using correlation networks of *m/z* feature abundances, molecular formula selection and graphical component selection, assigned molecular formulas for predicted IPs could be recovered from a subset of chemical standards spiked into an example human urine sample analysed using FIE-HRMS metabolome fingerprinting.
 It was also possible to assign molecular formulas of common primary and secondary metabolites present in the KEGG compound database to *m/z* features from leaf tissue of *B. distachyon* using both FIE-HRMS fingerprinting and C18-UHPLC-HRMS profiling techniques.
 
 This approach can contribute to considerably reducing the workload of 'first pass' putative metabolite identification in non-targeted metabolomics analyses.
