@@ -123,7 +123,7 @@ However, tandem MS is unsuitable for metabolome fingerprinting-based techniques 
 Many of the available software packages implementing the strategies outlined above are suitable for LC-MS derived data only.
 
 For investigators, manual consideration of putative annotations is time-consuming and often difficult to deduce due to the complex interactions between ions and molecules and their mathematical possibilities forming *m/z* features.
-It is important that software package implementations can automate this process but also provide tractable results and simple input parameters for easy and wide applicability.
+It is important that software package implementations can automate this process but also provide traceable results and simple input parameters for easy and wide applicability.
 
 Correlation analysis has been commonly used to identify related metabolites within metabolomics data and is often used in LC-MS approaches to group related *m/z* features [@steuer2006;@kuhl2012]. 
 These analyses can be represented as weighted undirected network graphs where the *m/z* features reflect the graph nodes and the significant correlations between them, the graph edges [@gehlenborg2010].
