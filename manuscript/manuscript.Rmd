@@ -134,7 +134,7 @@ The use of correlations to identify relationships between *m/z* features provide
 For instance, if two features that are posited to have the same composition (eg. a C^13^ relationship) but are not significantly correlated within the matrix, it would then be illogical to infer biological assumptions about associations (eg. metabolic pathway changes) of those features with other putatively assigned features within the matrix.
 
 Here, we outline the development of a data-driven, automated approach for 'first pass' putative molecular formula assignment in non-targeted ESI-MS fingerprinting and LC-MS profiling-based metabolomics data. 
-This is aimed at biological experiments that include numerous replicates of sample classes for the assignment of low accurate mass (< 1000 atomic mass units (amu)) metabolite elemental compositions of biological origin.
+This is aimed at biological experiments that includes replicated samples (> 4) of experimental classes for the assignment of low accurate mass (< 1000 atomic mass units (amu)) metabolite elemental compositions of biological origin.
 It is an ensemble approach that combines a number of annotation strategies including correlation analysis, molecular formula selection, adduct and isotopic scoring and graphical component selection.
 This is accompanied by the development of the R package *assignments* as an implementation of the approach.
 
