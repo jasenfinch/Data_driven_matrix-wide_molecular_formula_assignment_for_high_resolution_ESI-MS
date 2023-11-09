@@ -52,6 +52,7 @@ MF_selection_targets <- list(
       ggplot2::ggplot(ggplot2::aes(x = Rank,
                                    y = `Measured M`)) +
       ggplot2::geom_point(alpha = 0.3,size = 1) +
+      ggplot2::scale_x_log10() +
       jfmisc::theme_neat() +
       ggplot2::labs(x = '*P<sub>MF</sub>* rank',
                     y = 'Monoisotopic mass') +
@@ -65,6 +66,7 @@ MF_selection_targets <- list(
       ggplot2::ggplot(ggplot2::aes(x = Rank,
                                    y = N)) +
       ggplot2::geom_point(alpha = 0.3,size = 1) +
+      ggplot2::scale_x_log10() +
       jfmisc::theme_neat() +
       ggplot2::labs(x = '*P<sub>MF</sub>* rank',
                     y = 'Number of generated molecular formulas') +
