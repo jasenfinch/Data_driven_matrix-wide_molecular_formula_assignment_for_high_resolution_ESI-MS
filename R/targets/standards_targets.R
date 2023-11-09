@@ -1,6 +1,4 @@
 
-search_ppm <- 4
-
 assignment_parameters <- {
   p <- assignments::assignmentParameters("FIE-HRMS") 
   assignments::adducts(p)$n <- c("[M-H]1-","[M+Cl]1-","[M+Cl37]1-","[M+K-2H]1-","[M-2H]2-","[2M-H]1-")

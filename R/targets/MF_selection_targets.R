@@ -1,5 +1,5 @@
 
-KEGG_alternative_MFs_ppm <- 6
+KEGG_alternative_MFs_ppm <- 4
 
 MF_selection_targets <- list(
   
