@@ -629,7 +629,7 @@ kegg_top_rank_percent <- KEGG_compound_MF_ranks %>%
 
 The use of correlation analysis to identify related features requires a suitable number of observations to ensure that statistically significant associations can be detected. 
 This is especially important in non-targeted metabolomics data sets that can contain thousands of *m/z* features and p-value adjustment is required to account for multiple testing. 
-For example, to detect a significant lower limit of Pearson's correlation coefficient of 0.7 for a matrix containing `r sample_size_n_features` *m/z* features, an approximate minimum sample size of `r sample_size` observations would be required (p < 0.05, Bonferroni corrected) [@cohen2013]. 
+For example, to detect a significant lower limit of Pearson's correlation coefficient of 0.7 for a matrix containing `r sample_size_n_features` *m/z* features, an approximate minimum sample size of `r sample_size` observations would be required (p < 0.05, Bonferroni correction applied) [@cohen2013]. 
 Metabolomics fingerprinting and profiling experiments typically require high replication of 10-15 observations per class in order to discriminate between the sample classes [@enot2008]. 
 Therefore, a sample set comparing just four classes brings this to within a practical range for applying this approach in many cases, such as the example *B. distachyon* ecotype comparison sample set provided here.
 
