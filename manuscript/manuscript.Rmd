@@ -163,7 +163,16 @@ negative_mode_adducts <-  brachy_FIE_HRMS_parameters_molecular_formula_assignmen
   stringr::str_replace_all(']2-',']^2-^') %>% 
   stringr::str_replace_all('Cl37','^37^Cl') %>% 
   str_as_written_list()
+
 positive_mode_adducts <-   brachy_FIE_HRMS_parameters_molecular_formula_assignment %>% 
+  assignments::adducts() %>% 
+  .$p %>% 
+  stringr::str_replace_all(stringr::coll(']1+'),']^1+^') %>% 
+  stringr::str_replace_all(stringr::coll(']2+'),']^2+^') %>% 
+  stringr::str_replace_all('K41','^41^K') %>% 
+  str_as_written_list()
+
+standards_pos_adducts <-   standards_parameters_molecular_formula_assignment %>% 
   assignments::adducts() %>% 
   .$p %>% 
   stringr::str_replace_all(stringr::coll(']1+'),']^1+^') %>% 
@@ -183,7 +192,7 @@ Where $c$ is the overall ionisation product charge, $\Delta m_a$ is the adduct m
 The negative ionisation mode adducts included: `r negative_mode_adducts`.
 The positive ionisation mode adducts included: `r positive_mode_adducts`.
 All adduct mass, charge and molecule information can be found in Additional file 3 (Table S2).
-The isotopes included single and double ^13^C and ^18^O for the *B.distachyon* matrices and additionally ^34^S for the spiked urine.
+The isotopes included ^13^C and ^18^O for the *B.distachyon* matrices and additionally ^34^S for the standards mix and spiked urine.
 The isotopic mass information used can be found in Additional file 3 (Table S3).
 For all matrices, `r nrow(mzAnnotation::transformation_rules)` transformations were based on the transitions of common metabolic reactions found in primary metabolism.
 These transformations can be found in Additional file 3 (Table S4).
@@ -204,7 +213,7 @@ To reduce the computational requirements for molecular formula generation with i
 Generated molecular formulas were restricted to only include the elements C, H, N, O, P and S.
 For a given $M$, the maximum allowed element frequencies for generated molecular formulas were restricted using the following terms: $C = M/12$, $H = 2C$, $N,O = C/2$, $P,S = C/4$.
 The calculated frequencies were rounded to the nearest integer value.
-Molecular formula generation was conducted for each $M$ value within a mass deviation range of $\pm$ 6 ppm.
+Molecular formula generation was conducted for each $M$ value within a mass deviation range of $\pm$ `r search_ppm` ppm.
 This generation was exhaustive, using the brute force approach of the HR2 generator, without the application of the golden rules proposed by @kind2007.
 
 To allow the most plausible molecular formulas to be selected, a percentage plausibility score was calculated based on 12 heuristic checks of the rules 2, 4, 5 and 6 from @kind2007.
@@ -226,11 +235,11 @@ The components were ranked from most plausible to least plausible using a compon
 This was based on the component size, the average component edge weight and an additional score based on the plausibility of the adduct and isotopic combinations of the features within the component (AIS).
 
 To calculate $AIS$, the possible adducts within each ionisation mode were ranked from most probable to least probable and assigned a score ($a$) with the most probable being $n-1$, $n$ being the number of adducts within that ionisation mode and least probable adduct a score of 0. 
-The adduct rank scores used for the assignment were based on the adduct order specified in Section \@ref(relationships) for all matrices.
+The adduct rank scores used for the assignment were based on the adduct order specified in Section \@ref(relationships) for the *B. distachyon* matrices. For the standards mix and spiked urine, an alternative order of `r standards_pos_adducts` was used for the positive mode adducts.
 
 Similarly, for the possible isotopes, these were also ranked from most (non-isotopic) to least probable and assigned a score ($i$) as for the adducts.
-The isotopic rank scores used for the assignment of the *B.distachyon* matrices were as follows: Non-isotopic = 3, ^13^C = 2, ^18^O = 1, ^13^C2 = 0.
-For the spiked urine matrices, the isotopic rank scores were: Non-isotopic = 4, ^13^C = 3, ^18^O = 2, ^34^S = 1, ^13^C2 = 0.
+The isotopic rank scores used for the assignment of the *B.distachyon* matrices were as follows: Non-isotopic = 2, ^13^C = 1, ^18^O = 0.
+For the standards mix and spiked urine matrices, the isotopic rank scores were: Non-isotopic = 3, ^13^C = 2, ^18^O = 1, ^34^S = 0.
 
 The $AIS$ for a given adduct and isotopic combination ($k$) was then calculated using:
 
