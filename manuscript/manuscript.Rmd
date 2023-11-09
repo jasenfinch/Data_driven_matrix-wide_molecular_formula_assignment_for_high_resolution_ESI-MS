@@ -96,7 +96,7 @@ average_kegg_compounds <- assignment_matches %>%
 We present a data-driven ensemble approach for the ‘first pass’ automated assignment of molecular formulas to mass spectra acquired from high-resolution electrospray ionisation mass spectrometry (ESI-MS). This is primarily intended for metabolomics experiment data using non-targeted metabolome fingerprinting and LC-MS profiling.
 The approach incorporates the use of *m/z* correlation networks, molecular formula generation and selection as well as graphically based component plausibility selection to assign molecular formulas to *m/z* features.
 The R package *assignments* was developed as a user-friendly implementation of the approach and is freely available from https://github.com/aberHRML/assignments.
-The approach was tested in a mix of known chemical standards, human urine samples spiked the chemical standards mix and a data set comparing leaf tissue samples of different ecotypes of the model grass species *Brachypodium distachyon*. 
+The approach was tested in a mix of known chemical standards, human urine samples spiked with the chemical standards mix and a data set comparing leaf tissue samples of different ecotypes of the model grass species *Brachypodium distachyon*. 
 Of the `r compounds_possible` chemical standards that had theoretical ionisation products matching *m/z* features in the standards mix, the approach assigned `r compounds_percent_assigned$standards`% of these.
 Across the example matrices, an average of `r average_percent_assigned`% of the *m/z* features were assigned a molecular formula matching an average of `r average_kegg_compounds` compounds in the KEGG compound database.
 
