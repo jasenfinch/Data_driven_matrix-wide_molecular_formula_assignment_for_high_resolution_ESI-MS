@@ -125,12 +125,12 @@ Many of the available software packages implementing the strategies outlined abo
 For investigators, manual consideration of putative annotations is time-consuming and often difficult to deduce due to the complex interactions between ions and molecules and their mathematical possibilities forming *m/z* features.
 It is important that software package implementations can automate this process but also provide traceable results and simple input parameters for easy and wide applicability.
 
-Correlation analysis has been commonly used to identify related metabolites within metabolomics data and is often used in LC-MS approaches to group related *m/z* features [@steuer2006;@kuhl2012]. 
+Correlation analysis has been commonly used to identify related metabolites within metabolomics data and is often used in LC-MS approaches to group related *m/z* features [@steuer2006;@kuhl2012].
 These analyses can be represented as weighted undirected network graphs where the *m/z* features reflect the graph nodes and the significant correlations between them, the graph edges [@gehlenborg2010].
 Applying Spearman's rank correlation allows the detection of both linear and monotopic associations between *m/z* features.
 Adduct and isotopic relationships would be expected to have positive linear correlations whereas compounds associated by pathway transformations within living tissues under the control of gene and protein regulation would be able to have both positive or negative monotonic correlations [@camacho2005].
 
-The use of correlations to associate relationships between *m/z* features provides an essential layer of data-driven, internal validation of the mathematically derived solutions.
+The use of correlations to identify relationships between *m/z* features provides an essential layer of data-driven, internal validation of theoretically derived associations.
 For instance, if two features that are posited to have the same composition (eg. a C^13^ relationship) but are not significantly correlated within the matrix, it would then be illogical to infer biological assumptions about associations (eg. metabolic pathway changes) of those features with other putatively assigned features within the matrix.
 
 Here, we outline the development of a data-driven, automated approach for 'first pass' putative molecular formula assignment in non-targeted ESI-MS fingerprinting and LC-MS profiling-based metabolomics data. 
