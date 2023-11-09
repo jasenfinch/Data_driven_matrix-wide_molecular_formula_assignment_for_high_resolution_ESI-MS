@@ -246,11 +246,12 @@ The $AIS$ for a given adduct and isotopic combination ($k$) was then calculated 
 $$AIS_k = \frac{a_k + i_k}{\max{a} + \max{i}}$$
 
 The $AIS$ scores within each component were totalled and divided by half the total number of adduct and isotope combinations to give a component $AIS$ score ($AIS_c$).
+If an *m/z* feature was represented by more than one adduct and isotope combination in a component, the combination with the highest AIS score was retained.
 
 For each component, the component plausibility score $P_c$ was calculated using:
 
 $$P_c = d \times AIS_c \times w$$
-Where $d$ is the component degree and $w$ is the average component edge weight. 
+Where $d$ is the component degree and $w$ is the average absolute component edge weight. 
 The higher $P_c$, the more plausible the component subgraph.
 
 Features shared between multiple components were sequentially eliminated and retained for only the components with the highest $P_c$.
