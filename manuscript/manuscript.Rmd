@@ -41,28 +41,64 @@ Some annotation approaches are available; however, these are primarily for liqui
 ## Results {-}
 
 ```{r assignment-summary}
-# tar_load(assignment_results)
-# tar_load(assignment_matches)
-# tar_load(spike_urine_standards_MF_assignment_possible)
-# tar_load(spiked_urine_correct_assignments)
-# 
-# total_assigned <- round(sum(assignment_results$n_assignments) / 
-#                           sum(assignment_results$n_features) * 100,1)
-# total_mfs <- sum(assignment_results$n_MFs)
-# total_kegg <- sum(assignment_matches$KEGG_compound_matches)
-# 
-# spiked_urine_possible <- nrow(spike_urine_standards_MF_assignment_possible)
-# spiked_urine_correct_percent <- spiked_urine_correct_assignments$MF %>% 
-#   unique() %>% 
-#   length() %>% 
-#   {. / spiked_urine_possible * 100} %>% 
-#   round(digits = 1)
+tar_load(standards_compound_outcomes)
+tar_load(assignment_results)
+tar_load(assignment_matches)
+
+compounds_possible <- standards_compound_outcomes %>% 
+  dplyr::filter(
+    outcome == 'MFs matched to m/z features'
+  ) %>% 
+  dplyr::pull(
+    standards
+  )
+
+compounds_percent_assigned <- standards_compound_outcomes %>% 
+  dplyr::filter(
+    outcome %in% c(
+      "MFs matched to m/z features",
+      "Total MFs assigned"
+    )
+  ) %>% 
+  tidyr::gather(
+    sample,n,
+    -outcome
+  ) %>% 
+  tidyr::spread(
+    outcome,n
+  ) %>% 
+  dplyr::group_by(sample) %>% 
+  dplyr::summarise(
+    percent = {`Total MFs assigned` / `MFs matched to m/z features` * 100} %>% 
+      signif(digits = 3)
+  ) %>% 
+  dplyr::pull(percent) %>% 
+  purrr::set_names(c(
+    'spiked_urine',
+    'standards'
+  )) %>% 
+  as.list()
+
+average_percent_assigned <- assignment_results %>% 
+  dplyr::mutate(
+    percent_assigned = n_assignments / n_features * 100
+  ) %>% 
+  dplyr::pull(percent_assigned) %>% 
+  mean() %>% 
+  signif(digits = 3)
+
+average_kegg_compounds <- assignment_matches %>% 
+  dplyr::pull(KEGG_compound_matches) %>% 
+  mean(na.rm = TRUE) %>% 
+  round()
 ```
 
 We present a data-driven ensemble approach for the ‘first pass’ automated assignment of molecular formulas to mass spectra acquired from high-resolution electrospray ionisation mass spectrometry (ESI-MS). This is primarily intended for metabolomics experiment data using non-targeted metabolome fingerprinting and LC-MS profiling.
 The approach incorporates the use of *m/z* correlation networks, molecular formula generation and selection as well as graphically based component plausibility selection to assign molecular formulas to *m/z* features.
 The R package *assignments* was developed as a user-friendly implementation of the approach and is freely available from https://github.com/aberHRML/assignments.
-The approach was tested in human urine samples spiked with known chemical standards and a data set comparing leaf tissue samples of different ecotypes of the model grass species *Brachypodium distachyon*. Across the three test matrices, `r #total_assigned`% of the m/z features were assigned a molecular formula giving a total of `r #total_mfs` molecular formulas and matching to `r #total_kegg` compounds in the KEGG compound database. Of the `r #spiked_urine_possible` spiked chemical standards that it was possible to assign in the human urine samples, the approach was able to assign m/z features to `r #spiked_urine_correct_percent`% of these.
+The approach was tested in a mix of known chemical standards, human urine samples spiked the chemical standards mix and a data set comparing leaf tissue samples of different ecotypes of the model grass species *Brachypodium distachyon*. 
+Of the `r compounds_possible` chemical standards that had theoretical ionisation products matching *m/z* features in the standards mix, the approach assigned `r compounds_percent_assigned$standards`% of these.
+Across the example matrices, an average of `r average_percent_assigned`% of the *m/z* features were assigned a molecular formula matching an average of `r average_kegg_compounds` compounds in the KEGG compound database.
 
 ## Conclusions {-}
 
@@ -306,7 +342,6 @@ With the use of high-performance computing resources with greater than 32 CPU wo
 tar_load(standards_parameters_molecular_formula_assignment)
 tar_load(standards_assignment_outcomes_non_iso)
 tar_load(spiked_urine_assignment_outcomes_non_iso)
-tar_load(standards_compound_outcomes)
 
 n_adducts <- standards_parameters_molecular_formula_assignment %>%
   assignments::adducts() %>% 
@@ -355,32 +390,6 @@ standards_n_alternative <- standards_assignment_outcomes_non_iso %>%
     matching_adduct == FALSE
   ) %>% 
   nrow()
-
-compounds_percent_assigned <- standards_compound_outcomes %>% 
-  dplyr::filter(
-    outcome %in% c(
-      "MFs matched to m/z features",
-      "Total MFs assigned"
-    )
-  ) %>% 
-  tidyr::gather(
-    sample,n,
-    -outcome
-  ) %>% 
-  tidyr::spread(
-    outcome,n
-  ) %>% 
-  dplyr::group_by(sample) %>% 
-  dplyr::summarise(
-    percent = {`Total MFs assigned` / `MFs matched to m/z features` * 100} %>% 
-      signif(digits = 3)
-  ) %>% 
-  dplyr::pull(percent) %>% 
-  purrr::set_names(c(
-    'spiked_urine',
-    'standards'
-  )) %>% 
-  as.list()
 ```
 
 To assess the performance of the molecular formula and graphical component selection approaches, the assignment outcomes were evaluated for the theoretical IPs calculated for the chemical standards that matched to *m/z* features in the standards mix and spiked urine. 
@@ -525,9 +534,9 @@ Added to this, the LC-MS reduces the effects of ion suppression compare to FIE-H
 \linespread{1}
 
 ```{r assignment-results}
-tar_read(assignment_results) %>%
+assignment_results %>%
   dplyr::full_join(
-    tar_read(assignment_matches) %>% 
+    assignment_matches %>% 
       dplyr::mutate(
         matrix = matrix %>% 
           replace(
