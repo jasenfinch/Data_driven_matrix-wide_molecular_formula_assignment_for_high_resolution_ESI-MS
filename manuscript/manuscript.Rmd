@@ -218,7 +218,7 @@ standards_pos_adducts <-   standards_parameters_molecular_formula_assignment %>%
 ```
 
 Possible adduct, isotopic and transformation mass relationships were calculated for each pair of correlated *m/z*.
-The pre-ionisation masses ($M$) were first calculated for all adduct, isotopic and transformation combinations for each of the *m/z*. 
+The precursor masses ($M$) were first calculated for all adduct, isotopic and transformation combinations for each of the *m/z*. 
 An $M$ for a given ionisation product *m/z*, adduct, isotope and transformation was calculated using the following equation:
 
 $$M = \frac{c(m/z - \Delta m_a) - \Delta m_i}{n} - \Delta m_t$$
