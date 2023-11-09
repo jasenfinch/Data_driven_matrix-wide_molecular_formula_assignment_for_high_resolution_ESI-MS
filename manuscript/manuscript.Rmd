@@ -119,7 +119,7 @@ A number of strategies can be employed to annotate peaks in mass spectra.
 These can include simple approaches such as heuristic filtering of molecular formulas generated from *m/z* or direct matching putative ionisation products (IPs) to metabolite databases [@draper2009; @green2015; @kind2007];
 but also ensemble approaches that integrate a number of strategies like correlation analysis, ionisation product scoring and biotransformations [@baran2013; @fernandez2014; @kuhl2012; @uppal2017].
 Tandem MS can also be employed for LC-MS approaches and provides a convenient method for structural validation [@neumann2010].
-However, this is unsuitable for metabolome fingerprinting-based techniques due to the presence of structural isomers and isobaric compounds.
+However, tandem MS is unsuitable for metabolome fingerprinting-based techniques due to the presence of structural isomers and isobaric compounds.
 Many of the available software packages implementing these strategies are suitable for LC-MS techniques only.
 
 For investigators, manual consideration of putative annotations is time-consuming and often difficult to interpret due to the complex interactions between ions and molecules and their mathematical possibilities forming *m/z* features.
