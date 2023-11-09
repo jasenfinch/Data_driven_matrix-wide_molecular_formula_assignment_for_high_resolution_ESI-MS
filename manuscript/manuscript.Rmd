@@ -655,7 +655,7 @@ tar_read(KEGG_compound_MF_ranks_mass_plot) +
 
 \linespread{2}
 
-As shown in Figure \@ref(fig:figure-3-feature-solutions), there can be multiple graphical molecular formula component solutions can exist for a given *m/z* feature.
+As shown in Figure \@ref(fig:figure-3-feature-solutions), there can be multiple graphical component solutions that can exist for a given *m/z* feature.
 The component plausibility score was the primary criterion for which components were selected. 
 This score combines information about how connected the features are within a given component, the average strength of these connections and the expected commonality of the adduct and isotopic combinations present.
 By using this information about the connections of *m/z* within the spectrum, it is possible for an *m/z* to be assigned a less plausible molecular formula if it is more highly connected with strong connections containing more common adduct and isotopic combinations.
