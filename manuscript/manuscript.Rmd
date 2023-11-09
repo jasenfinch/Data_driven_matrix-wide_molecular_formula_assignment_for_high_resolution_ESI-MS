@@ -629,7 +629,7 @@ This is also shown in Figure \@ref(fig:figure-2-kegg-mf-selection) where the pla
 
 \linespread{1}
 
-```{r figure-2-kegg-mf-selection,fig.height=4,fig.cap='Molecular formula plausibility ($P_{MF}$) rankings of KEGG compound molecular formulas. The $P_{MF}$ rankings were based on the monoisotopic masses of 6745 valid KEGG compound molecular formulas for which molecular formulas were generated using a mass error of $\\pm$ 6 ppm.'}
+```{r figure-2-kegg-mf-selection,fig.height=4,fig.cap='Molecular formula plausibility ($P_{MF}$) rankings of KEGG compound molecular formulas. The $P_{MF}$ rankings were based on the monoisotopic masses of 6745 valid KEGG compound molecular formulas for which molecular formulas were generated using a mass error of $\\pm$ 4 ppm.'}
 tar_read(KEGG_compound_MF_ranks_mass_plot) +
   tar_read(KEGG_compound_MF_ranks_n_plot)
 ```
