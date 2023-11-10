@@ -107,7 +107,7 @@ The approach presented here and its implementation in the R package *assignments
 # Introduction
 
 Metabolite identification remains one of the main bottlenecks both in time and resources in the analysis of non-targeted mass spectrometry based metabolomics approaches.
-Electrospray ionisation mass spectrometry (ESI-MS) is preferred as this is a soft ionisation technique that enables easier compound identification [@domingo2018].
+Electrospray ionisation mass spectrometry (ESI-MS) is a soft ionisation technique that simplifies compound identification [@domingo2018].
 Irrespectively, it is possible for a single metabolite to be represented within ESI-MS spectra by multiple ionisation product adducts and isotopes [@draper2013]. 
 
 Ultra-high resolution MS instrumentation utilising Orbitrap mass analyser technology is now commonplace in many laboratories, which can yield many thousands of *m/z* features in a single analytical run [@hu2005].
