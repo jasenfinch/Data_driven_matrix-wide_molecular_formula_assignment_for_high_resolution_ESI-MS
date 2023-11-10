@@ -19,6 +19,8 @@ assignment_parameters <- assignment_parameters %>%
     }
   )
 
+assignment_parameters$`RP-UHPLC-HRMS`@RT_diff_limit <- 2/60
+
 brachy_targets <- purrr::map2(
   techniques,
   assignment_parameters,
