@@ -239,6 +239,7 @@ All relationships with an $M$ difference in mass error below 0.001 amu and a max
 ### Adduct and isotopic assignment iterations
 
 This first assignment step used only positively correlated feature relationships that corresponded to adduct and isotopic relationships without transformation. 
+For the C18-UHPLC-HRMS data, these correlated feature relationships were limited to *m/z* features with a retention time difference of up to 2 seconds.
 This assignment step consisted of molecular formula generation, molecular formula selection (Section \@ref(MF-selection)) and then multiple iterations of network graph component assembly and network graph component selection (Section \@ref(component-selection)).
 
 ### Molecular formula generation and selection {#MF-selection}
