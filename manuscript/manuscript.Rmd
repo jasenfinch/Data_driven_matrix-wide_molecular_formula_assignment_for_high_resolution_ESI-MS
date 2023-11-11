@@ -162,7 +162,7 @@ The sample matrices were each analysed using FIE-HRMS and C18 reverse phase ultr
 These data are available via the EMBL-EBI Metabolights database with the study identifier MTBLS6949.
 The FIE-HRMS data were spectrally processed by performing spectral binning using the R package *binneR* v`r packageVersion('binneR')` [@finch2022].
 Spectral processing of the C18-UHPLC-HRMS profiling data was conducted using the R package *xcms* v`r packageVersion('xcms')` [@smith2006].
-The data were then pre-treated by performing batch correction, feature occupancy filtering, imputation, relative standard deviation filtering based on QC samples and total ion count normalisation using the R package *metabolyseR* v`r packageVersion('metabolyseR')` available from GitHub (https://github.com/jasenfinch/metabolyseR).
+The data were then pre-treated by performing batch correction, feature occupancy filtering, imputation, relative standard deviation (RSD) filtering based on quality control (QC) samples and total ion count (TIC) normalisation using the R package *metabolyseR* v`r packageVersion('metabolyseR')` available from GitHub (https://github.com/jasenfinch/metabolyseR).
 Further details of the ESI-MS analyses and data preparation are available in Additional file 2.
 All data processing and analysis were performed using the R Statistical Programming Language version `r stringr::str_c(version$major,version$minor,sep ='.')` [@Rteam2022].
 
@@ -190,6 +190,7 @@ Correlations with a p-value below 0.05 and a minimum absolute coefficient of 0.7
 ### Relationship calculation {#relationships}
 
 ```{r adducts}
+tar_load(standards_parameters_molecular_formula_assignment)
 tar_load(brachy_FIE_HRMS_parameters_molecular_formula_assignment)
 
 negative_mode_adducts <-  brachy_FIE_HRMS_parameters_molecular_formula_assignment %>% 
@@ -328,7 +329,10 @@ It is available to install from GitHub at https://aberhrml.github.io/assignments
 The package is fully documented and a usage guide is provided for new users.
 
 The input data consists of a sample by accurate *m/z* feature intensity matrix with at least four samples.
-This data should be spectrally processed and appropriately pre-treated prior to assignment.
+It is recommended that these data are pre-treated prior to assignment.
+Pre-treatment steps such as occupancy or QC based RSD filtering can ensure the robustness of the *m/z* that are considered. 
+Other steps such as batch correction, imputation and TIC normalisation can improve the strength of *m/z* correlations by removing variability introduced during MS analysis. 
+
 All assignment parameters are fully customisable, which includes error thresholds, correlation analysis parameters and the specification of custom adducts, isotopes and transformations.
 It is possible for all the assignment criteria and results to be recovered for each assignment step, enabling the manual curation of assignments by the user.
 The default parameters provided by the package have been designated to enable assignment for a wide range of biological applications.
@@ -340,7 +344,6 @@ With the use of high-performance computing resources with greater than 32 CPU wo
 ## Molecular formula assignment success {#success}
 
 ```{r assignment-evaluations}
-tar_load(standards_parameters_molecular_formula_assignment)
 tar_load(standards_assignment_outcomes_non_iso)
 tar_load(spiked_urine_assignment_outcomes_non_iso)
 
