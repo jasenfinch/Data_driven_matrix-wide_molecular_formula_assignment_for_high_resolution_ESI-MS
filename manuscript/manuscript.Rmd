@@ -686,7 +686,7 @@ They could also be used to provide some information about precursor ions in LC-M
 
 The approach presented here, and its implementation in the *assignments* R package, provides investigators with an automated means to assign molecular formulas to non-targeted ESI-MS metabolomics with the use of high-performance computing resources.
 
-Using correlation networks of *m/z* feature abundances, molecular formula selection and graphical component selection, assigned molecular formulas for predicted IPs could be recovered from a subset of chemical standards spiked into an example human urine sample analysed using FIE-HRMS.
+Using correlation networks of *m/z* feature abundances, molecular formula selection and graphical component selection, assigned molecular formulas for predicted IPs could be recovered from a mixture of chemical standards as well as an example human urine sample spiked with this mixture, analysed using FIE-HRMS.
 It was also possible to assign molecular formulas of common primary and secondary metabolites present in the KEGG compound database to *m/z* features from leaf tissue of *B. distachyon* using both FIE-HRMS and C18-UHPLC-HRMS profiling techniques.
 
 This approach can contribute to considerably reducing the workload of 'first pass' putative metabolite identification in non-targeted metabolomics analyses.
