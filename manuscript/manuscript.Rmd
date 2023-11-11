@@ -329,7 +329,7 @@ The package is fully documented and a usage guide is provided for new users.
 
 The input data consists of a sample by accurate *m/z* feature intensity matrix with at least four samples.
 This data should be spectrally processed and appropriately pre-treated prior to assignment.
-All assignment parameters are fully customisable, which includes the specification of custom adducts, isotopes and transformations.
+All assignment parameters are fully customisable, which includes error thresholds, correlation analysis parameters and the specification of custom adducts, isotopes and transformations.
 It is possible for all the assignment criteria and results to be recovered for each assignment step, enabling the manual curation of assignments by the user.
 The default parameters provided by the package have been designated to enable assignment for a wide range of biological applications.
 
