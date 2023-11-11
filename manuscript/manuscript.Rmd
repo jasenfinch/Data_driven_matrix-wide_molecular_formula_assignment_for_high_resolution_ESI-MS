@@ -328,8 +328,8 @@ The R package *assignments* was developed as an implementation of this molecular
 It is available to install from GitHub at https://aberhrml.github.io/assignments/.
 The package is fully documented and a usage guide is provided for new users.
 
-The input data consists of a sample by accurate *m/z* feature intensity matrix with at least four samples.
-It is recommended that these data are pre-treated prior to assignment.
+The input data simply consists of a sample by accurate *m/z* feature intensity matrix with at least four samples.
+It is recommended that these data are pre-treated prior to assignment and data preparation can be performed by a software tool of the user's preference.
 Pre-treatment steps such as occupancy or QC-based RSD filtering can ensure the robustness of the *m/z* that are considered. 
 Other steps such as batch correction, imputation and TIC normalisation can improve the strength of *m/z* correlations by removing variability introduced during MS analysis. 
 
