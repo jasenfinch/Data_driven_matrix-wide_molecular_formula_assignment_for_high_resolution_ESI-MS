@@ -112,7 +112,7 @@ Irrespectively, it is possible for a single metabolite to be represented within 
 
 Ultra-high resolution MS instrumentation utilising Orbitrap mass analyser technology is now commonplace in many laboratories, which can yield many thousands of *m/z* features in a single analytical run [@hu2005].
 This has provided an unprecedented opportunity for metabolite annotation and has been applied to direct infusion approaches like flow infusion electrospray high-resolution MS (FIE-HRMS), commonly applied for 'first pass' metabolome fingerprinting and liquid chromatography (LC) HRMS profiling for non-targeted metabolomic analyses.
-However, mass accuracy alone does not meet the requirements for metabolite annotation [@kind2006].
+However, high mass accuracy alone is insufficient for unambiguous metabolite annotation [@kind2006].
 
 Metabolite annotation is a crucial aspect for ensuring that biological interpretation is possible from metabolomics data sets.
 A number of strategies can be employed to annotate peaks in mass spectra.
