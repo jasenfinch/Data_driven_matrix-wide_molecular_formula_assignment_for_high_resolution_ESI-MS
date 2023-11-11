@@ -330,7 +330,7 @@ The package is fully documented and a usage guide is provided for new users.
 
 The input data consists of a sample by accurate *m/z* feature intensity matrix with at least four samples.
 It is recommended that these data are pre-treated prior to assignment.
-Pre-treatment steps such as occupancy or QC based RSD filtering can ensure the robustness of the *m/z* that are considered. 
+Pre-treatment steps such as occupancy or QC-based RSD filtering can ensure the robustness of the *m/z* that are considered. 
 Other steps such as batch correction, imputation and TIC normalisation can improve the strength of *m/z* correlations by removing variability introduced during MS analysis. 
 
 All assignment parameters are fully customisable, which includes error thresholds, correlation analysis parameters and the specification of custom adducts, isotopes and transformations.
