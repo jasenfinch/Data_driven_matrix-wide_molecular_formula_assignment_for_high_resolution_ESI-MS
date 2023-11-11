@@ -36,7 +36,7 @@ knitr::opts_chunk$set(echo = FALSE,
 ## Background {-}
 
 Compound identification remains one of the primary bottlenecks in the analysis of non-targeted mass spectrometry metabolomics data.
-Some annotation approaches are available; however, these are primarily for liquid chromatography-mass spectrometry (LC-MS) profiling and are unsuitable for non-targeted metabolome fingerprinting techniques.
+Some annotation approaches are available; however, these are primarily for liquid chromatography-mass spectrometry (LC-MS) profiling and are unsuitable for non-targeted direct infusion techniques.
 
 ## Results {-}
 
@@ -93,7 +93,7 @@ average_kegg_compounds <- assignment_matches %>%
   round()
 ```
 
-We present a data-driven ensemble approach for the ‘first pass’ automated assignment of molecular formulas to mass spectra acquired from high-resolution electrospray ionisation mass spectrometry (ESI-MS). This is primarily intended for metabolomics experiment data of biological origin, using non-targeted metabolome fingerprinting and LC-MS profiling.
+We present a data-driven ensemble approach for the ‘first pass’ automated assignment of molecular formulas to mass spectra acquired from high-resolution electrospray ionisation mass spectrometry (ESI-MS). This is primarily intended for metabolomics experiment data of biological origin, using non-targeted direct infusion and LC-MS profiling.
 The approach incorporates the use of *m/z* correlation networks, molecular formula generation and selection as well as graphically based component plausibility selection to assign molecular formulas to *m/z* features.
 The R package *assignments* was developed as a user-friendly implementation of the approach and is freely available from https://github.com/aberHRML/assignments.
 The approach was tested in a mix of known chemical standards, human urine samples spiked with the chemical standards mix and a data set comparing leaf tissue samples of different ecotypes of the model grass species *Brachypodium distachyon*. 
@@ -111,7 +111,7 @@ Electrospray ionisation mass spectrometry (ESI-MS) is a soft ionisation techniqu
 Irrespectively, it is possible for a single metabolite to be represented within ESI-MS spectra by multiple ionisation product adducts and isotopes [@draper2013]. 
 
 Ultra-high resolution MS instrumentation utilising Orbitrap mass analyser technology is now commonplace in many laboratories, which can yield many thousands of *m/z* features in a single analytical run [@hu2005].
-This has provided an unprecedented opportunity for metabolite annotation and has been applied to approaches such as 'first pass' flow infusion electrospray high-resolution MS (FIE-HRMS) fingerprinting and liquid chromatography (LC) HRMS profiling for non-targeted metabolomic analyses.
+This has provided an unprecedented opportunity for metabolite annotation and has been applied to direct infusion approaches like flow infusion electrospray high-resolution MS (FIE-HRMS), commonly applied for 'first pass' metabolome fingerprinting and liquid chromatography (LC) HRMS profiling for non-targeted metabolomic analyses.
 However, mass accuracy alone does not meet the requirements for metabolite annotation [@kind2006].
 
 Metabolite annotation is a crucial aspect for ensuring that biological interpretation is possible from metabolomics data sets.
@@ -119,7 +119,7 @@ A number of strategies can be employed to annotate peaks in mass spectra.
 These can include simple approaches such as heuristic filtering of molecular formulas generated from *m/z* or direct matching putative ionisation products (IPs) to metabolite databases [@draper2009; @green2015; @kind2007];
 but also ensemble approaches that integrate a number of strategies like correlation analysis, ionisation product scoring and biotransformations [@baran2013; @fernandez2014; @kuhl2012; @uppal2017].
 Tandem MS can also be employed for LC-MS approaches and provides a convenient method for structural validation [@neumann2010].
-However, tandem MS is unsuitable for metabolome fingerprinting-based techniques due to the presence of structural isomers and isobaric compounds.
+However, tandem MS is unsuitable for direct infusion based techniques due to the presence of structural isomers and isobaric compounds.
 Many of the available software packages implementing the strategies outlined above are suitable for LC-MS derived data only.
 
 For investigators, manual consideration of putative annotations is time-consuming and often difficult to deduce due to the complex interactions between ions and molecules and their mathematical possibilities forming *m/z* features.
@@ -133,7 +133,7 @@ Adduct and isotopic relationships would be expected to have positive linear corr
 The use of correlations to identify relationships between *m/z* features provides an essential layer of data-driven, internal validation of theoretically derived associations.
 For instance, if two features are posited to have the same molecular formula based on a mass difference equivalent to ^13^C but are not significantly correlated within the matrix, it would then be illogical to infer biological assumptions about other associations (eg. metabolic pathway changes) of those features with other putatively assigned features within the matrix.
 
-Here, we outline the development of a data-driven, automated approach for 'first pass' putative molecular formula assignment in non-targeted ESI-MS fingerprinting and LC-MS profiling-based metabolomics data. 
+Here, we outline the development of a data-driven, automated approach for 'first pass' putative molecular formula assignment in non-targeted, direct infusion and LC, ESI-MS based metabolomics data. 
 This is aimed at biological experiments that include experimental classes with greater than four replicate samples and for the assignment of accurate masses up to 1000 atomic mass units (amu).
 It is an ensemble approach that combines a number of annotation strategies including correlation analysis, molecular formula selection, adduct and isotopic scoring and graphical component selection.
 This is accompanied by the development of the R package *assignments* as an implementation of the approach.
@@ -158,9 +158,9 @@ The second was human urine purchased from BioIVT (Catalog# HUMANURINEPNN, Lot# 0
 The third was healthy leaf tissue samples collected from four ecotypes of the model grass species *Brachypodium distachyon* using the method described in @parker2008.
 Further details of the sample collection and extraction are described in the Additional file 2.
 
-The sample matrices were each analysed using FIE-HRMS fingerprinting and C18 reverse phase ultra-high performance liquid chromatography high-resolution mass spectrometry (C18-UHPLC-HRMS) profiling.
+The sample matrices were each analysed using FIE-HRMS and C18 reverse phase ultra-high performance liquid chromatography high-resolution mass spectrometry (C18-UHPLC-HRMS) profiling.
 These data are available via the EMBL-EBI Metabolights database with the study identifier MTBLS6949.
-The FIE-HRMS fingerprinting data were spectrally processed by performing spectral binning using the R package *binneR* v`r packageVersion('binneR')` [@finch2022].
+The FIE-HRMS data were spectrally processed by performing spectral binning using the R package *binneR* v`r packageVersion('binneR')` [@finch2022].
 Spectral processing of the C18-UHPLC-HRMS profiling data was conducted using the R package *xcms* v`r packageVersion('xcms')` [@smith2006].
 The data were then pre-treated by performing batch correction, feature occupancy filtering, imputation, relative standard deviation filtering based on QC samples and total ion count normalisation using the R package *metabolyseR* v`r packageVersion('metabolyseR')` available from GitHub (https://github.com/jasenfinch/metabolyseR).
 Further details of the ESI-MS analyses and data preparation are available in Additional file 2.
@@ -631,10 +631,10 @@ kegg_top_rank_percent <- KEGG_compound_MF_ranks %>%
 The use of correlation analysis to identify related features requires a suitable number of observations to ensure that statistically significant associations can be detected. 
 This is especially important in non-targeted metabolomics data sets that can contain thousands of *m/z* features and p-value adjustment is required to account for multiple testing. 
 For example, to detect a significant lower limit of Pearson's correlation coefficient of 0.7 for a matrix containing `r sample_size_n_features` *m/z* features, an approximate minimum sample size of `r sample_size` observations would be required (p < 0.05, Bonferroni correction applied) [@cohen2013]. 
-Metabolomics fingerprinting and profiling experiments typically require high replication of 10-15 observations per class in order to discriminate between the sample classes [@enot2008]. 
+Metabolome profiling experiments typically require high replication of 10-15 observations per class in order to discriminate between the sample classes [@enot2008]. 
 Therefore, a sample set comparing just four classes brings this to within a practical range for applying this approach in many cases, such as the example *B. distachyon* ecotype comparison sample set provided here.
 
-The approaches of the *MFAssignR* R package and *Formularity* software provide alternative means of assigning molecular formulas to both fingerprinting and LC-MS data, with *Formularity* utilising a compound identification database to aid molecular formula selection [@schum2020;@tolic2017].
+The approaches of the *MFAssignR* R package and *Formularity* software provide alternative means of assigning molecular formulas to both direct infusion and LC-MS data, with *Formularity* utilising a compound identification database to aid molecular formula selection [@schum2020;@tolic2017].
 While these approaches provide the advantage of being able to assign molecular formulas using a single replicate with substantially low computational demands, they do not incorporate the use of correlations between *m/z* features.
 This can lead to incorrect assignments and the potential miss assignment of isotopic formulae to uncorrelated features.
 Both the *CAMERA* and *MAIT* R packages utilise correlations for adduct and isotope annotation but only for LC-MS data [@fernandez2014;@kuhl2012].
@@ -673,7 +673,7 @@ tar_read(spiked_urine_feature_solutions_plot)
 Adduct formation will vary depending on the sample origin and the frequency of isotopes will be dependent on the elemental compositions of the constituent compounds [@kruve2017].
 The input rankings of the adducts and isotopes ranks used will alter the preference of selected components so gains can possibly be made in assignment accuracy with the optimisation of these rankings on a per sample type basis.
 
-Although examples used here include FIE-HRMS fingerprinting and C18-UHPLC-HRMS profiling techniques, other non-targeted metabolomics techniques using non-targeted ultra-high resolution mass accuracy ESI-MS data such as nanospray direct infusion would also be suitable [@southam2017].
+Although the examples used here include FIE-HRMS and C18-UHPLC-HRMS profiling techniques, other non-targeted metabolomics techniques using non-targeted ultra-high resolution mass accuracy ESI-MS data such as nanospray direct infusion would also be suitable [@southam2017].
 Similarly, data from other chromatographic techniques for LC-HRMS profiling could be used such as hydrophilic interaction chromatography (HILIC), where suitable adducts and adduct rankings could instead be specified [@spagou2010].
 
 This approach was designed for use with any sample tissues and fluids of biological origin and analysed using non-targeted ultra-high resolution mass accuracy ESI-MS data.
@@ -686,8 +686,8 @@ They could also be used to provide some information about precursor ions in LC-M
 
 The approach presented here, and its implementation in the *assignments* R package, provides investigators with an automated means to assign molecular formulas to non-targeted ESI-MS metabolomics with the use of high-performance computing resources.
 
-Using correlation networks of *m/z* feature abundances, molecular formula selection and graphical component selection, assigned molecular formulas for predicted IPs could be recovered from a subset of chemical standards spiked into an example human urine sample analysed using FIE-HRMS metabolome fingerprinting.
-It was also possible to assign molecular formulas of common primary and secondary metabolites present in the KEGG compound database to *m/z* features from leaf tissue of *B. distachyon* using both FIE-HRMS fingerprinting and C18-UHPLC-HRMS profiling techniques.
+Using correlation networks of *m/z* feature abundances, molecular formula selection and graphical component selection, assigned molecular formulas for predicted IPs could be recovered from a subset of chemical standards spiked into an example human urine sample analysed using FIE-HRMS.
+It was also possible to assign molecular formulas of common primary and secondary metabolites present in the KEGG compound database to *m/z* features from leaf tissue of *B. distachyon* using both FIE-HRMS and C18-UHPLC-HRMS profiling techniques.
 
 This approach can contribute to considerably reducing the workload of 'first pass' putative metabolite identification in non-targeted metabolomics analyses.
 Assignments can be used as inputs for enrichment analyses, providing a fast route to the biological interpretation of inherently complex data sets.
