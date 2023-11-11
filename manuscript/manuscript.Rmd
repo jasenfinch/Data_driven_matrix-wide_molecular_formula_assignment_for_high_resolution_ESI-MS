@@ -678,7 +678,9 @@ Similarly, data from other chromatographic techniques for LC-HRMS profiling coul
 
 This approach was designed for use with any sample tissues and fluids of biological origin and analysed using non-targeted ultra-high resolution mass accuracy ESI-MS data.
 The additional input of knowledge for transformations specific to the biological sample can increase assignment success.
-However, the approach could be applied without the use of transformations where these are not relevant.
+These transformations could encompass any biological or non-biological alteration that may occur to the precursor molecules and result in correlated *m/z* that could be used for molecular formula assignment.
+In-source fragmentation would be one such example.
+The approach can alternatively be applied without the use of transformations where these are not relevant.
 The assigned molecular formulas could be putatively matched to compound databases such as KEGG using ionisation rules such as those of the MZedDB database and then apply functional enrichment analyses using a tool such as the R package *FELLA* [@draper2009;@picart2018].
 They could also be used to provide some information about precursor ions in LC-MS/MS fragmentation analyses.
 
