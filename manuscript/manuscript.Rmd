@@ -170,7 +170,7 @@ All data processing and analysis were performed using the R Statistical Programm
 
 For each sample matrix, the input data for molecular formula assignment had undergone spectral processing and pre-treatment and consisted of a sample by *m/z* feature intensity matrix containing both positive and negative ionisation mode data. 
 Molecular formula assignment was conducted using the R package *assignments* v`r packageVersion('assignments')` and the approach comprised four major steps which are outlined in Figure \@ref(fig:figure-1-approach).
-Where assignment was possible, *m/z* features were designated with unambiguous molecular formulas, isotopes and ionisation adduct assignments. 
+Where assignment was possible, *m/z* features were designated with singular molecular formula, isotope and ionisation adduct assignments. 
 The following sections outline the methodology behind each major step of the approach.
 
 \linespread{1}
