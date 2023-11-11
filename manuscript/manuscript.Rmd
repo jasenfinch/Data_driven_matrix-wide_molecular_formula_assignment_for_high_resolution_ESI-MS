@@ -267,7 +267,7 @@ The three top-ranked molecular formulas with the highest $P_{MF}$ scores, genera
 ### Graphical component selection {#component-selection}
 
 For each selected molecular formula, a component subgraph was constructed from the correlation network graph using all matching features, with features allowed across multiple components.
-All components with a size of less than one and containing only isotopic features or adducts were removed.
+All components with a size of less than two or containing only isotopic features or isotopic adducts were removed.
 
 The components were ranked from most plausible to least plausible using a component plausibility score $P_c$. 
 This was based on the component size, the average component edge weight and an additional score based on the plausibility of the adduct and isotopic combinations of the features within the component (AIS).
