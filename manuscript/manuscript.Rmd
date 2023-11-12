@@ -131,7 +131,7 @@ Applying Spearman's rank correlation allows the detection of both linear and mon
 Adduct and isotopic relationships would be expected to have positive linear correlations whereas compounds associated by pathway transformations within living tissues under the control of gene and protein regulation would be able to have both positive or negative monotonic correlations [@camacho2005].
 
 The use of correlations to identify relationships between *m/z* features provides an essential layer of data-driven, internal validation of theoretically derived associations.
-For instance, if two features are posited to have the same molecular formula based on a mass difference equivalent to ^13^C but are not significantly correlated within the matrix, it would then be illogical to infer biological assumptions about other associations (eg. metabolic pathway changes) of those features with other putatively assigned features within the matrix.
+For instance, if two features are posited to have the same molecular formula based on a mass difference equivalent to ^13^C but are not significantly correlated within the matrix, it would then be illogical to infer biological assumptions about associations (eg. metabolic pathway changes) with other putatively assigned features.
 
 Here, we outline the development of a data-driven, automated approach for 'first pass' putative molecular formula assignment in non-targeted, direct infusion and LC, ESI-MS based metabolomics data. 
 This is aimed at biological experiments that include experimental classes with greater than four replicate samples and for the assignment of accurate masses up to 1000 atomic mass units (amu).
