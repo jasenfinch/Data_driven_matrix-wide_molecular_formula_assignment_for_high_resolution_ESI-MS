@@ -532,7 +532,7 @@ All of the assignments for these example matrices along with any matched KEGG co
 The assignments obtained from the *B. distachyon* is provided as an example showing the intended real world application of the molecular formula assignment approach to a sample set that includes multiple underlying experimental classes in the correlation network.
 A similar number of molecular formulas were assigned to the FIE-HRMS matrices for the spiked human urine and *B. distachyon* matrices as well as similar numbers of molecular formulas that were matched to KEGG compounds.
 
-While not the intended primary application of the approach, the C18-UPHLC-HRMS data from *B. distachyon* had the highest percentage of *m/z* features assigned along with the greatest number of molecular formulas. 
+The C18-UPHLC-HRMS data from *B. distachyon* had the highest percentage of *m/z* features assigned along with the greatest number of molecular formulas. 
 The chromatographic separation of the C18-UHPLC-HRMS enables the correlation network to be considered within limited retention time windows and increases the likelihood that a number of correlated IPs will be present for a given compound.
 Added to this, the LC-MS reduces the effects of ion suppression compare to FIE-HRMS and also decreases the chance of potential interference in the correlations between related features due to the presence of structural isomers and isobaric compounds [@gowda2014]. 
 
