@@ -133,7 +133,7 @@ Adduct and isotopic relationships would be expected to have positive linear corr
 The use of correlations to identify relationships between *m/z* features provides an essential layer of data-driven, internal validation of theoretically derived associations.
 For instance, if two features are posited to have the same molecular formula based on a mass difference equivalent to ^13^C but are not significantly correlated within the matrix, it would then be illogical to infer biological assumptions about associations (eg. metabolic pathway changes) with other putatively assigned features.
 
-Here, we outline the development of a data-driven, automated approach for 'first pass' putative molecular formula assignment in non-targeted, direct infusion and LC, ESI-MS based metabolomics data. 
+Here, we outline the development of a data-driven, automated approach for 'first pass' putative molecular formula assignment in non-targeted ESI-MS based metabolomics data. 
 This is aimed at biological experiments that include experimental classes with greater than four replicate samples and for the assignment of accurate masses up to 1000 atomic mass units (amu).
 It is an ensemble approach that combines a number of annotation strategies including correlation analysis, molecular formula selection, adduct and isotopic scoring and graphical component selection.
 This is accompanied by the development of the R package *assignments* as an implementation of the approach.
