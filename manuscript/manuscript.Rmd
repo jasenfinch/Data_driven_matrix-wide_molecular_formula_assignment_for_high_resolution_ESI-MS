@@ -154,11 +154,11 @@ standards_compound_MFs <- standards_compound_info %>%
 Three example sample matrices were used for assessing the molecular formula assignment approach. 
 The first was a diverse mixture of `r nrow(standards_compound_info)` chemical standards from a previously validated assay that included `r standards_compound_MFs` unique molecular formulas [@beckmann2020].
 A full list of the names and InChI chemical identifiers of the chemical standards can be found in Additional file 1.
-The second was human urine purchased from BioIVT (Catalog# HUMANURINEPNN, Lot# 0393918) and spiked with the sample mixture of chemical standards as used above.
+The second was human urine purchased from BioIVT (Catalog# HUMANURINEPNN, Lot# 0393918) and spiked with the sample mixture of chemical standards used above.
 The third was healthy leaf tissue samples collected from four ecotypes of the model grass species *Brachypodium distachyon* using the method described in @parker2008.
 Further details of the sample collection and extraction are described in the Additional file 2.
 
-The sample matrices were each analysed using FIE-HRMS and C18 reverse phase ultra-high performance liquid chromatography high-resolution mass spectrometry (C18-UHPLC-HRMS) profiling.
+The sample matrices were all analysed using FIE-HRMS as well as C18 reverse phase ultra-high performance liquid chromatography high-resolution mass spectrometry (C18-UHPLC-HRMS) profiling of the *B. distachyon* leaf tissue.
 These data are available via the EMBL-EBI Metabolights database with the study identifier MTBLS6949.
 The FIE-HRMS data were spectrally processed by performing spectral binning using the R package *binneR* v`r packageVersion('binneR')` [@finch2022].
 Spectral processing of the C18-UHPLC-HRMS profiling data was conducted using the R package *xcms* v`r packageVersion('xcms')` [@smith2006].
@@ -477,7 +477,7 @@ The other alternative component was selected due to higher $P_c$ score resulting
 There was only a single instance where an ionisation product was incorrectly assigned as a result of the molecular formula selection approach.
 
 The incidence of alternative adduct and molecular formula assignment is higher in the spiked urine (Table \@ref(tab:ip-outcomes)).
-However, this is expected as there and are more *m/z* features present and greater numbers of background compounds and therefore greater chance for alternative graphical components to be present in the correlation network.
+However, this is expected as there and are more *m/z* features present with greater numbers of background compounds and therefore a greater chance for alternative graphical components to be present in the correlation network.
 It does not necessarily reflect a poor performance of the graphical component selection approach, there is just a higher probability that these *m/z* could potentially be alternative compounds. 
 Alternative assignment resulting from molecular formula selection still remains low.
 
@@ -529,12 +529,12 @@ standards_compound_outcomes %>%
 
 An overview of the molecular formula assignments made across the example sample matrices is provided in Table \@ref(tab:assignment-results).
 All of the assignments for these example matrices along with any matched KEGG compound IDs are provided in Additional file 6.
-The assignments obtained from the *B. distachyon* is provided as an example showing the intended real world application of the molecular formula assignment approach to a sample set that includes multiple underlying experimental classes in the correlation network.
+The assignments obtained from the *B. distachyon* matrices are provided as an example showing the intended real world application of the molecular formula assignment approach to a sample set that includes multiple underlying experimental classes in the correlation network.
 A similar number of molecular formulas were assigned to the FIE-HRMS matrices for the spiked human urine and *B. distachyon* matrices as well as similar numbers of molecular formulas that were matched to KEGG compounds.
 
 The C18-UPHLC-HRMS data from *B. distachyon* had the highest percentage of *m/z* features assigned along with the greatest number of molecular formulas. 
 The chromatographic separation of the C18-UHPLC-HRMS enables the correlation network to be considered within limited retention time windows and increases the likelihood that a number of correlated IPs will be present for a given compound.
-Added to this, the LC-MS reduces the effects of ion suppression compare to FIE-HRMS and also decreases the chance of potential interference in the correlations between related features due to the presence of structural isomers and isobaric compounds [@gowda2014]. 
+Added to this, the LC-MS reduces the effects of ion suppression compared to FIE-HRMS and also decreases the chance of potential interference in the correlations between related features due to the presence of structural isomers and isobaric compounds [@gowda2014]. 
 
 \linespread{1}
 
@@ -677,7 +677,7 @@ tar_read(spiked_urine_feature_solutions_plot)
 Adduct formation will vary depending on the sample origin and the frequency of isotopes will be dependent on the elemental compositions of the constituent compounds [@kruve2017].
 The input rankings of the adducts and isotopes ranks used will alter the preference of selected components so gains can possibly be made in assignment accuracy with the optimisation of these rankings on a per sample type basis.
 
-Although the examples used here include FIE-HRMS and C18-UHPLC-HRMS profiling techniques, other non-targeted metabolomics techniques using non-targeted ultra-high resolution mass accuracy ESI-MS data such as nanospray direct infusion would also be suitable [@southam2017].
+Although the examples used here include FIE-HRMS and C18-UHPLC-HRMS profiling techniques, other non-targeted metabolomics techniques using ultra-high resolution ESI-MS data such as nanospray direct infusion would also be suitable [@southam2017].
 Similarly, data from other chromatographic techniques for LC-HRMS profiling could be used such as hydrophilic interaction chromatography (HILIC), where suitable adducts and adduct rankings could instead be specified [@spagou2010].
 
 This approach was designed for use with any sample tissues and fluids of biological origin and analysed using non-targeted ultra-high resolution mass accuracy ESI-MS data.
