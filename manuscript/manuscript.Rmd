@@ -562,8 +562,8 @@ assignment_results %>%
     `\\textit{m/z} features` = n_features,
     correlations = n_correlations,
     relationships = n_relationships,
-    `adduct and isotopic step assignments` = n_ai_assignments,
-    `transformation step assignments` = n_t_assignments,
+    `A\\&I iterations assignments` = n_ai_assignments,
+    `T iterations assignments` = n_t_assignments,
     `assigned \\textit{m/z}` = n_assignments,
     `molecular formulas (MF)` = n_MFs,
     `KEGG compound matches` = KEGG_compound_matches,
@@ -595,7 +595,7 @@ assignment_results %>%
       rep('l',1),
       rep('r',4)
     ),
-    caption = 'A summary of the molecular formula assignment results for the example sample matrices.') %>%
+    caption = 'A summary of the molecular formula assignment results for the example sample matrices. The \\textit{m/z} assigned for the adduct and isotopic (A\\&I) iterations and the transformation (T) iterations steps are included.') %>%
   kable_styling(
     font_size = 10,
     latex_options = "HOLD_position"
