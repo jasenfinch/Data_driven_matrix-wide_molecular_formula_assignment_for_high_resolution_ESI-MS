@@ -61,11 +61,10 @@ mzAnnotation::adduct_rules() %>%
 
 ```{r table-s3}
 mzAnnotation::isotope_rules() %>% 
-  dplyr::filter(Isotope %in% c('13C','13C2','18O','34S')) %>% 
+  dplyr::filter(Isotope %in% c('13C','18O','34S')) %>% 
   dplyr::select(Isotope,
                 `Mass difference` = `Mass Difference`) %>%
   dplyr::mutate(Isotope = c('\\textsuperscript{13}C',
-                            '\\textsuperscript{13}C2',
                             '\\textsuperscript{18}O',
                             '\\textsuperscript{34}S')) %>% 
   knitr::kable(caption = 'Isotopic mass difference information.',
