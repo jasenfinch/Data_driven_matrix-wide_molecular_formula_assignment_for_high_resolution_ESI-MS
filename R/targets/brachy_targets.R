@@ -41,7 +41,6 @@ brachy_targets <- purrr::map2(
       .x,
       `FIE-HRMS` = hrmtargets::tar_input_piggyback(
         !!target_name,
-        repo = 'jasenfinch/Data_driven_matrix-wide_molecular_formula_assignment_for_high_resolution_ESI-MS-devel',
         tag = 'brachypodium_FIE-HRMS',
         sample_info_file = 'sample_information.csv'  
       ),

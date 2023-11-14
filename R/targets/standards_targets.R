@@ -66,7 +66,6 @@ standards_processing_targets <- matrix_info %>%
         hrmtargets::tar_input_piggyback(
           !!rlang::sym(.x$sample),
           tag = !!.x$tag,
-          repo = 'jasenfinch/Data_driven_matrix-wide_molecular_formula_assignment_for_high_resolution_ESI-MS-devel',
           sample_info_file = .x$sample_info),
         
         ## Perform spectral binning
