@@ -38,7 +38,7 @@ The `r tar_read(standards_compound_info) %>% nrow()` chemical standards were dis
 
 ## MS analysis
 
-FIE-HRMS mass spectra were acquired on on a Q-Exactive Orbitrap (ThermoFinnigan, San Jose CA) coupled to a Dionex (ThermoFinnigan, San Jose CA) ultra-performance LC system system for the *B. distachyon* samples and the Human urine. 
+FIE-HRMS mass spectra were acquired on on a Thermo Q-Exactive Plus Orbitrap (ThermoFinnigan, San Jose CA) coupled to a Dionex (ThermoFinnigan, San Jose CA) ultra-performance LC system system for the *B. distachyon* samples and the Human urine. 
 A sample volume of 20 $\mu$L was injected and delivered to the electrospray ionisation (ESI) source via a 'plug' flow solvent of pre-mixed HPLC grade MeOH (Fisher Scientific) and ultra-pure H~2~O (18.2 $\Omega$) at a ratio of 7:3. 
 The initial flow rate was 60 $\mu$L min^-1^ for 0.4 minutes and increased to 200 $\mu$L min^-1^ over 0.8 minutes. 
 The flow rate was maintained at 200 $\mu$L min^-1^ for 0.3 minutes then increased to 600 $\mu$L min^-1^ over 1.5 minutes. 
@@ -57,7 +57,7 @@ Similarly to the spiked urine samples, three blank injections were performed fir
 The QC samples were made up of equal parts of each of the 60 samples in the run.
 A QC sample injection then followed each of the random blocks.
 
-C18-UHPLC-HRMS analyses were performed on an Orbitrap Fusion Tribrid mass spectrometer (Thermo Scientific) that was coupled to a Ultimate 3000 liquid chromatography tower (Dionex, Thermo Scientific). 
+C18-UHPLC-HRMS analyses were performed on an Thermo Orbitrap Fusion Tribrid mass spectrometer (Thermo Scientific) that was coupled to a Ultimate 3000 liquid chromatography tower (Dionex, Thermo Scientific). 
 Mass spectra were acquired using a single scan filter for each of the positive and negative ionisation modes between a range of 100-2000 m/z. For all scan events, the scan rate was 1 Hz with a mass resolution of 100,000. The automatic gain control (AGC) target was 5 x10^5.
 
 A Hypersil Gold reverse phase C18 column (2.1 mm x 150 mm; particle size 1.9 $\mu$m) was used for chromatography, which was maintained at a temperature of 60 $^\circ$C. 
